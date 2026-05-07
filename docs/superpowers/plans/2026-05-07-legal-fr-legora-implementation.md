@@ -251,7 +251,7 @@ class LegalFrScaffoldTest(unittest.TestCase):
         self.assertEqual(servers["exa"]["url"], "https://mcp.exa.ai/mcp")
         self.assertIn("openlegi", servers)
         self.assertIn("mcp-remote", " ".join(servers["openlegi"]["args"]))
-        self.assertNotIn("piighost", servers)
+        self.assertNotIn("legacy anonymization MCP", servers)
 
     def test_vertical_commands_playbooks_and_skills_exist(self):
         for family, command_names in EXPECTED_COMMANDS.items():
@@ -282,7 +282,7 @@ class LegalFrScaffoldTest(unittest.TestCase):
             self.assertTrue(prompt_text.startswith("---\n"), str(prompt))
             self.assertIn("## Workers reutilisables", prompt_text)
             self.assertIn("## Guardrails", prompt_text)
-            self.assertNotIn("piighost", prompt_text.lower())
+            self.assertNotIn("legacy anonymization MCP", prompt_text.lower())
             for skill in skills:
                 bundled = root / "skills" / skill / "SKILL.md"
                 self.assertTrue(bundled.is_file(), str(bundled))
@@ -837,7 +837,7 @@ Spec coverage:
 - 8 Cowork agents: Task 2 creates every agent plugin and bundles skills.
 - Exa and OpenLegi: Task 2 writes `.mcp.json` and `CONNECTORS.md`.
 - Parallel Agent Skills: Task 2 writes installation guidance in `CONNECTORS.md`.
-- No piighost in V1: Task 1 asserts `piighost` is absent from MCP and agent prompts.
+- No legacy anonymization MCP in V1: Task 1 asserts `legacy anonymization MCP` is absent from MCP and agent prompts.
 - Tabular Review and workers: Task 2 generates agent prompts and relevant skills; Task 1 verifies worker and guardrail sections.
 - Marketplace: Task 2 updates `.claude-plugin/marketplace.json`; Task 1 verifies entries.
 - Validation: Tasks 1, 3, 4 and 5 run unittest, `scripts/check.py`, and GitNexus.

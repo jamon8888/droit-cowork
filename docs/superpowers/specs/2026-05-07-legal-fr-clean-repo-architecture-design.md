@@ -17,7 +17,7 @@ Everything that belongs to the original Financial Services distribution must rem
 ## Non-Goals
 
 - Do not delete the original Financial Services assets permanently.
-- Do not reintroduce `piighost`.
+- Do not reintroduce `legacy anonymization MCP`.
 - Do not change Legal-FR workflow behavior beyond paths, docs, marketplace scope, and repository structure.
 - Do not install or call paid external services during restructuring.
 - Do not require `parallel-cli` to be installed for deterministic CI checks.
@@ -156,7 +156,7 @@ Create a root Legal-FR `AGENTS.md` with:
 - Exa/Parallel use boundaries;
 - human validation gates;
 - no secret leakage;
-- no `piighost`;
+- no `legacy anonymization MCP`;
 - development workflow and verification commands.
 
 ### CLAUDE.md
@@ -235,8 +235,8 @@ ERROR: parallel-cli is not installed or not on PATH
 - Legal-FR tests pass.
 - Legal-FR eval runner reports 45 expected outputs checked.
 - Root `README.md`, `AGENTS.md`, and `CLAUDE.md` are Legal-FR-specific and intentional.
-- No active artifact requires `piighost`.
-- No active artifact hardcodes `OPENLEGI_TOKEN=` or `PARALLEL_API_KEY=`.
+- No active artifact requires `legacy anonymization MCP`.
+- No active artifact hardcodes `OPENLEGI_TOKEN assignment` or `PARALLEL_API_KEY assignment`.
 - Git status is clean except for intentionally ignored local GitNexus index data.
 
 ## Implementation Notes

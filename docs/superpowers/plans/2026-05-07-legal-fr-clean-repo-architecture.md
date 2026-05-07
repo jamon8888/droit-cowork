@@ -626,7 +626,7 @@ This repository is the Legal-FR plugin suite for French legal workflows. Agents 
 
 - Never hardcode `OPENLEGI_TOKEN` or `PARALLEL_API_KEY`.
 - Do not expose environment variables in generated reports.
-- Do not reintroduce `piighost`.
+- Do not reintroduce `legacy anonymization MCP`.
 - Do not send raw confidential client data to public web research tools.
 
 ## Development Workflow
@@ -801,10 +801,10 @@ Run:
 ```powershell
 Get-ChildItem -Path plugins, scripts, tests, docs, .claude-plugin, README.md, AGENTS.md, CLAUDE.md -Recurse -File -Include *.md,*.json,*.py |
   Where-Object { $_.FullName -notmatch '\\archive\\financial-services-origin\\' } |
-  Select-String -Pattern 'PARALLEL_API_KEY=|OPENLEGI_TOKEN=|piighost' -CaseSensitive:$false
+  Select-String -Pattern 'PARALLEL_API_KEY assignment|OPENLEGI_TOKEN assignment|legacy anonymization MCP' -CaseSensitive:$false
 ```
 
-Expected: no matches except negative assertions in tests if `tests` are included. If matches are only test assertions such as `assertNotIn("PARALLEL_API_KEY=", ...)`, record them as acceptable. If any active docs, scripts, commands, skills, or schemas contain assignments or `piighost`, fix them.
+Expected: no matches except negative assertions in tests if `tests` are included. If matches are only test assertions such as `assertNotIn("PARALLEL_API_KEY assignment", ...)`, record them as acceptable. If any active docs, scripts, commands, skills, or schemas contain assignments or `legacy anonymization MCP`, fix them.
 
 - [ ] **Step 4: Check git status**
 

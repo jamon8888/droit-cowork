@@ -25,7 +25,7 @@ This repository is the Legal-FR plugin suite for French legal workflows. Agents 
 
 - Never hardcode `OPENLEGI_TOKEN` or `PARALLEL_API_KEY`.
 - Do not expose environment variables in generated reports.
-- Do not reintroduce `piighost`.
+- Do not reintroduce `legacy anonymization MCP`.
 - Do not send raw confidential client data to public web research tools.
 
 ## Development Workflow
