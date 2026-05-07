@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "tabular-due-diligence-case-004-document",
     "filename": "tabular-due-diligence-case-004.md",
-    "detected_type": "unknown",
+    "detected_type": "data_room_document",
     "language": "fr",
-    "legal_domain": "unknown",
+    "legal_domain": "due_diligence",
     "readability": {
       "status": "unreadable",
       "confidence": 0.0

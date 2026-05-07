@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "chronologie-contentieux-case-004-document",
     "filename": "chronologie-contentieux-case-004.md",
-    "detected_type": "unknown",
+    "detected_type": "litigation_file",
     "language": "fr",
-    "legal_domain": "unknown",
+    "legal_domain": "litigation",
     "readability": {
       "status": "unreadable",
       "confidence": 0.0

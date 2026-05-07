@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "revue-conformite-interne-case-002-document",
     "filename": "revue-conformite-interne-case-002.md",
-    "detected_type": "contract",
+    "detected_type": "policy_or_contract",
     "language": "fr",
-    "legal_domain": "contracts",
+    "legal_domain": "compliance",
     "readability": {
       "status": "ok",
       "confidence": 0.86

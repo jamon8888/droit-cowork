@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "jurisprudence-multilingue-case-005-document",
     "filename": "jurisprudence-multilingue-case-005.md",
-    "detected_type": "contract",
+    "detected_type": "court_decision",
     "language": "fr",
-    "legal_domain": "contracts",
+    "legal_domain": "case_law",
     "readability": {
       "status": "ok",
       "confidence": 0.34

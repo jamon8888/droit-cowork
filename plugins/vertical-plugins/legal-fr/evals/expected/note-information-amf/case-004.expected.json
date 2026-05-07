@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "note-information-amf-case-004-document",
     "filename": "note-information-amf-case-004.md",
-    "detected_type": "unknown",
+    "detected_type": "amf_disclosure_file",
     "language": "fr",
-    "legal_domain": "unknown",
+    "legal_domain": "capital_markets",
     "readability": {
       "status": "unreadable",
       "confidence": 0.0

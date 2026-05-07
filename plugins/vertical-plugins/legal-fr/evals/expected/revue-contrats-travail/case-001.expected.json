@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "revue-contrats-travail-case-001-document",
     "filename": "revue-contrats-travail-case-001.md",
-    "detected_type": "contract",
+    "detected_type": "employment_agreement",
     "language": "fr",
-    "legal_domain": "contracts",
+    "legal_domain": "employment",
     "readability": {
       "status": "ok",
       "confidence": 0.9

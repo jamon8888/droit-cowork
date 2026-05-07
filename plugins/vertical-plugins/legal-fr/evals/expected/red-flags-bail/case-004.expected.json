@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "red-flags-bail-case-004-document",
     "filename": "red-flags-bail-case-004.md",
-    "detected_type": "unknown",
+    "detected_type": "lease_agreement",
     "language": "fr",
-    "legal_domain": "unknown",
+    "legal_domain": "real_estate",
     "readability": {
       "status": "unreadable",
       "confidence": 0.0

@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "tabular-due-diligence-case-001-document",
     "filename": "tabular-due-diligence-case-001.md",
-    "detected_type": "contract",
+    "detected_type": "data_room_document",
     "language": "fr",
-    "legal_domain": "contracts",
+    "legal_domain": "due_diligence",
     "readability": {
       "status": "ok",
       "confidence": 0.9

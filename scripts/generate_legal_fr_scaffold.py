@@ -211,6 +211,41 @@ COMMON_SCHEMA_NAMES = [
 
 WORKFLOW_SCHEMA_NAMES = ["extraction", "report"]
 
+WORKFLOW_INTAKE_METADATA = {
+    "revue-conformite-interne": {
+        "detected_type": "policy_or_contract",
+        "legal_domain": "compliance",
+    },
+    "analyse-contrats-fournisseurs": {
+        "detected_type": "supplier_agreement",
+        "legal_domain": "contracts_supply",
+    },
+    "chronologie-contentieux": {
+        "detected_type": "litigation_file",
+        "legal_domain": "litigation",
+    },
+    "jurisprudence-multilingue": {
+        "detected_type": "court_decision",
+        "legal_domain": "case_law",
+    },
+    "revue-contrats-travail": {
+        "detected_type": "employment_agreement",
+        "legal_domain": "employment",
+    },
+    "red-flags-bail": {
+        "detected_type": "lease_agreement",
+        "legal_domain": "real_estate",
+    },
+    "note-information-amf": {
+        "detected_type": "amf_disclosure_file",
+        "legal_domain": "capital_markets",
+    },
+    "tabular-due-diligence": {
+        "detected_type": "data_room_document",
+        "legal_domain": "due_diligence",
+    },
+}
+
 PRODUCTION_REQUIRED_TERMS = [
     "DRAFT - Validation professionnelle requise",
     "validated_by_human",
@@ -909,15 +944,16 @@ def eval_metadata(workflow: str, case_id: str, case_type: str, risk_level: str) 
 
 def expected_eval_output(workflow: str, case_id: str, case_type: str, risk_level: str) -> dict:
     details = EVAL_CASE_DETAILS[case_type]
+    intake_metadata = WORKFLOW_INTAKE_METADATA[workflow]
     finding_id = f"{workflow}-{case_id}-finding-001"
     document_id = f"{workflow}-{case_id}-document"
     unreadable = case_type == "unreadable_or_incomplete"
     document_intake = {
         "document_id": document_id,
         "filename": f"{workflow}-{case_id}.md",
-        "detected_type": "unknown" if unreadable else "contract",
+        "detected_type": intake_metadata["detected_type"],
         "language": "fr",
-        "legal_domain": "unknown" if unreadable else "contracts",
+        "legal_domain": intake_metadata["legal_domain"],
         "readability": {
             "status": "unreadable" if unreadable else "ok",
             "confidence": 0.0 if unreadable else details["confidence"],

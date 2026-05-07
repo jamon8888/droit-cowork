@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "note-information-amf-case-002-document",
     "filename": "note-information-amf-case-002.md",
-    "detected_type": "contract",
+    "detected_type": "amf_disclosure_file",
     "language": "fr",
-    "legal_domain": "contracts",
+    "legal_domain": "capital_markets",
     "readability": {
       "status": "ok",
       "confidence": 0.86

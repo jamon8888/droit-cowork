@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "chronologie-contentieux-case-005-document",
     "filename": "chronologie-contentieux-case-005.md",
-    "detected_type": "contract",
+    "detected_type": "litigation_file",
     "language": "fr",
-    "legal_domain": "contracts",
+    "legal_domain": "litigation",
     "readability": {
       "status": "ok",
       "confidence": 0.34

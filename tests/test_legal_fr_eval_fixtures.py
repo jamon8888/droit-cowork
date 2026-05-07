@@ -18,6 +18,41 @@ WORKFLOWS = [
     "tabular-due-diligence",
 ]
 
+WORKFLOW_INTAKE_METADATA = {
+    "revue-conformite-interne": {
+        "detected_type": "policy_or_contract",
+        "legal_domain": "compliance",
+    },
+    "analyse-contrats-fournisseurs": {
+        "detected_type": "supplier_agreement",
+        "legal_domain": "contracts_supply",
+    },
+    "chronologie-contentieux": {
+        "detected_type": "litigation_file",
+        "legal_domain": "litigation",
+    },
+    "jurisprudence-multilingue": {
+        "detected_type": "court_decision",
+        "legal_domain": "case_law",
+    },
+    "revue-contrats-travail": {
+        "detected_type": "employment_agreement",
+        "legal_domain": "employment",
+    },
+    "red-flags-bail": {
+        "detected_type": "lease_agreement",
+        "legal_domain": "real_estate",
+    },
+    "note-information-amf": {
+        "detected_type": "amf_disclosure_file",
+        "legal_domain": "capital_markets",
+    },
+    "tabular-due-diligence": {
+        "detected_type": "data_room_document",
+        "legal_domain": "due_diligence",
+    },
+}
+
 EVAL_CASES = [
     ("case-001", "compliant", "low"),
     ("case-002", "blocking_red_flag", "high"),
@@ -92,6 +127,15 @@ class LegalFrEvalFixturesTest(unittest.TestCase):
                     self.assertIn("detected_type", document_intake)
                     self.assertIn("language", document_intake)
                     self.assertIn("legal_domain", document_intake)
+                    intake_metadata = WORKFLOW_INTAKE_METADATA[workflow]
+                    self.assertEqual(
+                        document_intake["detected_type"],
+                        intake_metadata["detected_type"],
+                    )
+                    self.assertEqual(
+                        document_intake["legal_domain"],
+                        intake_metadata["legal_domain"],
+                    )
                     self.assertIn("readability", document_intake)
                     self.assertIn("status", document_intake["readability"])
                     self.assertIn("confidence", document_intake["readability"])

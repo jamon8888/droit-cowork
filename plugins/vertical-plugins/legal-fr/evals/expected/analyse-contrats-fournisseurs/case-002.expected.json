@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "analyse-contrats-fournisseurs-case-002-document",
     "filename": "analyse-contrats-fournisseurs-case-002.md",
-    "detected_type": "contract",
+    "detected_type": "supplier_agreement",
     "language": "fr",
-    "legal_domain": "contracts",
+    "legal_domain": "contracts_supply",
     "readability": {
       "status": "ok",
       "confidence": 0.86

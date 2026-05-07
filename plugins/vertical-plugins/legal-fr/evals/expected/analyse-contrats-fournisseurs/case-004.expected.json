@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "analyse-contrats-fournisseurs-case-004-document",
     "filename": "analyse-contrats-fournisseurs-case-004.md",
-    "detected_type": "unknown",
+    "detected_type": "supplier_agreement",
     "language": "fr",
-    "legal_domain": "unknown",
+    "legal_domain": "contracts_supply",
     "readability": {
       "status": "unreadable",
       "confidence": 0.0

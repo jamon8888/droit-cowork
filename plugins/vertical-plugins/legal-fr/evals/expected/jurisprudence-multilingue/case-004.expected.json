@@ -3,9 +3,9 @@
   "document_intake": {
     "document_id": "jurisprudence-multilingue-case-004-document",
     "filename": "jurisprudence-multilingue-case-004.md",
-    "detected_type": "unknown",
+    "detected_type": "court_decision",
     "language": "fr",
-    "legal_domain": "unknown",
+    "legal_domain": "case_law",
     "readability": {
       "status": "unreadable",
       "confidence": 0.0
