@@ -12,27 +12,37 @@
 
 ## Termes a extraire
 
-- duree
-- preavis
-- prix
-- revision
-- penalites
-- exclusivite
+| Terme | Description | Type | Valeur par defaut |
+| --- | --- | --- | --- |
+| document_id | Identifiant stable du document | string | nom fichier |
+| source_excerpt | Extrait qui justifie l'observation | string | A VERIFIER |
+| source_status | official, secondary, web, unverified, not_found | enum | unverified |
+| confidence | Confiance 0-1 | number | 0.5 |
+| duree | Terme specifique domaine | string | A EXTRAIRE |
+| preavis | Terme specifique domaine | string | A EXTRAIRE |
+| prix | Terme specifique domaine | string | A EXTRAIRE |
+| revision | Terme specifique domaine | string | A EXTRAIRE |
+| penalites | Terme specifique domaine | string | A EXTRAIRE |
+| exclusivite | Terme specifique domaine | string | A EXTRAIRE |
 
 ## Regles de conformite
 
-- `R-001`: Toute sortie issue du playbook reste marquee `DRAFT - Validation professionnelle requise` tant que `validated_by_human` n'est pas vrai.
-- `R-002`: Chaque conclusion substantielle doit porter un `source_status` explicite: official, secondary, web, unverified ou not_found.
-- `R-003`: Chaque extraction ou scoring doit inclure `confidence` entre 0 et 1 et signaler les hypotheses qui limitent la fiabilite.
-- `R-FOU-001`: Extraire duree, renouvellement, preavis et conditions de sortie.
-- `R-FOU-002`: Verifier prix, revision, indexation et penalites operationnelles ou financieres.
-- `R-FOU-003`: Qualifier les clauses d'exclusivite, dependance, cession et changement de controle.
+| ID | Regle | Severite | Controle | Action |
+| --- | --- | --- | --- | --- |
+| R-001 | Toute conclusion critique cite une source ou reste A VERIFIER | blocking | audit trail | Bloquer le livrable |
+| R-002 | Toute sortie externe porte la mention DRAFT | blocking | quality gate | Ajouter la mention |
+| R-003 | Toute observation a un score de confiance | major | risk score | Ajouter confidence |
+| R-FOU-001 | Extraire duree, renouvellement, preavis et conditions de sortie. | major | playbook domaine | Revoir avec juriste |
+| R-FOU-002 | Verifier prix, revision, indexation et penalites operationnelles ou financieres. | major | playbook domaine | Revoir avec juriste |
+| R-FOU-003 | Qualifier les clauses d'exclusivite, dependance, cession et changement de controle. | major | playbook domaine | Revoir avec juriste |
 
 ## Red flags automatiques
 
-- `RF-001`: Source officielle introuvable ou `source_status` not_found pour une regle juridique determinante.
-- `RF-002`: `validated_by_human` false alors que le livrable est presente comme final ou exploitable externe.
-- `RF-003`: `confidence` inferieur a 0.5 sur une clause, date, montant ou obligation materielle.
-- `RF-FOU-001`: Renouvellement automatique sans preavis exploitable ou calendrier d'alerte.
-- `RF-FOU-002`: Revision de prix unilaterale ou penalites disproportionnees.
-- `RF-FOU-003`: Exclusivite ou dependance fournisseur sans mecanisme de sortie.
+| ID | Red flag | Severite | Action |
+| --- | --- | --- | --- |
+| RF-001 | Source absente sur conclusion majeure | blocking | Marquer A VERIFIER |
+| RF-002 | Document illisible ignore | blocking | Ajouter a coverage |
+| RF-003 | validated_by_human absent | major | Ajouter human validation |
+| RF-FOU-001 | Renouvellement automatique sans preavis exploitable ou calendrier d'alerte. | major | Revue juridique ciblee |
+| RF-FOU-002 | Revision de prix unilaterale ou penalites disproportionnees. | major | Revue juridique ciblee |
+| RF-FOU-003 | Exclusivite ou dependance fournisseur sans mecanisme de sortie. | major | Revue juridique ciblee |

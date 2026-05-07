@@ -277,15 +277,22 @@ EVAL_CASE_DETAILS = {
 
 
 CORE_PLAYBOOK_RULES = [
-    ("R-001", "Toute sortie issue du playbook reste marquee `DRAFT - Validation professionnelle requise` tant que `validated_by_human` n'est pas vrai."),
-    ("R-002", "Chaque conclusion substantielle doit porter un `source_status` explicite: official, secondary, web, unverified ou not_found."),
-    ("R-003", "Chaque extraction ou scoring doit inclure `confidence` entre 0 et 1 et signaler les hypotheses qui limitent la fiabilite."),
+    ("R-001", "Toute conclusion critique cite une source ou reste A VERIFIER", "blocking", "audit trail", "Bloquer le livrable"),
+    ("R-002", "Toute sortie externe porte la mention DRAFT", "blocking", "quality gate", "Ajouter la mention"),
+    ("R-003", "Toute observation a un score de confiance", "major", "risk score", "Ajouter confidence"),
 ]
 
 CORE_PLAYBOOK_RED_FLAGS = [
-    ("RF-001", "Source officielle introuvable ou `source_status` not_found pour une regle juridique determinante."),
-    ("RF-002", "`validated_by_human` false alors que le livrable est presente comme final ou exploitable externe."),
-    ("RF-003", "`confidence` inferieur a 0.5 sur une clause, date, montant ou obligation materielle."),
+    ("RF-001", "Source absente sur conclusion majeure", "blocking", "Marquer A VERIFIER"),
+    ("RF-002", "Document illisible ignore", "blocking", "Ajouter a coverage"),
+    ("RF-003", "validated_by_human absent", "major", "Ajouter human validation"),
+]
+
+COMMON_EXTRACTION_TERMS = [
+    ("document_id", "Identifiant stable du document", "string", "nom fichier"),
+    ("source_excerpt", "Extrait qui justifie l'observation", "string", "A VERIFIER"),
+    ("source_status", "official, secondary, web, unverified, not_found", "enum", "unverified"),
+    ("confidence", "Confiance 0-1", "number", "0.5"),
 ]
 
 PLAYBOOK_DEFINITIONS = {
@@ -427,19 +434,43 @@ PLAYBOOK_DEFINITIONS = {
 }
 
 
-def bullets(items: list[str]) -> str:
-    return "\n".join(f"- {item}" for item in items)
+def term_table(domain_terms: list[str]) -> str:
+    rows = [
+        "| Terme | Description | Type | Valeur par defaut |",
+        "| --- | --- | --- | --- |",
+    ]
+    rows.extend(f"| {term} | {description} | {kind} | {default} |" for term, description, kind, default in COMMON_EXTRACTION_TERMS)
+    rows.extend(f"| {term} | Terme specifique domaine | string | A EXTRAIRE |" for term in domain_terms)
+    return "\n".join(rows)
 
 
 def coded_bullets(items: list[tuple[str, str]]) -> str:
     return "\n".join(f"- `{code}`: {description}" for code, description in items)
 
 
+def rule_table(core_rules: list[tuple[str, str, str, str, str]], domain_rules: list[tuple[str, str]]) -> str:
+    rows = [
+        "| ID | Regle | Severite | Controle | Action |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    rows.extend(f"| {code} | {rule} | {severity} | {control} | {action} |" for code, rule, severity, control, action in core_rules)
+    rows.extend(f"| {code} | {rule} | major | playbook domaine | Revoir avec juriste |" for code, rule in domain_rules)
+    return "\n".join(rows)
+
+
+def red_flag_table(core_red_flags: list[tuple[str, str, str, str]], domain_red_flags: list[tuple[str, str]]) -> str:
+    rows = [
+        "| ID | Red flag | Severite | Action |",
+        "| --- | --- | --- | --- |",
+    ]
+    rows.extend(f"| {code} | {red_flag} | {severity} | {action} |" for code, red_flag, severity, action in core_red_flags)
+    rows.extend(f"| {code} | {red_flag} | major | Revue juridique ciblee |" for code, red_flag in domain_red_flags)
+    return "\n".join(rows)
+
+
 def playbook_text(filename: str, definition: dict) -> str:
     title = definition["title"]
     terms = definition["terms"]
-    rules = [*CORE_PLAYBOOK_RULES, *definition["rules"]]
-    red_flags = [*CORE_PLAYBOOK_RED_FLAGS, *definition["red_flags"]]
     return f"""# {title}
 
 ## Metadata
@@ -454,15 +485,15 @@ def playbook_text(filename: str, definition: dict) -> str:
 
 ## Termes a extraire
 
-{bullets(terms)}
+{term_table(terms)}
 
 ## Regles de conformite
 
-{coded_bullets(rules)}
+{rule_table(CORE_PLAYBOOK_RULES, definition["rules"])}
 
 ## Red flags automatiques
 
-{coded_bullets(red_flags)}
+{red_flag_table(CORE_PLAYBOOK_RED_FLAGS, definition["red_flags"])}
 """
 
 

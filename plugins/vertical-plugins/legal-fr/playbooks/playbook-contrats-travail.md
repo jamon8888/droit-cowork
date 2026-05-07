@@ -12,25 +12,35 @@
 
 ## Termes a extraire
 
-- non-concurrence
-- remuneration
-- periode essai
-- CCN
+| Terme | Description | Type | Valeur par defaut |
+| --- | --- | --- | --- |
+| document_id | Identifiant stable du document | string | nom fichier |
+| source_excerpt | Extrait qui justifie l'observation | string | A VERIFIER |
+| source_status | official, secondary, web, unverified, not_found | enum | unverified |
+| confidence | Confiance 0-1 | number | 0.5 |
+| non-concurrence | Terme specifique domaine | string | A EXTRAIRE |
+| remuneration | Terme specifique domaine | string | A EXTRAIRE |
+| periode essai | Terme specifique domaine | string | A EXTRAIRE |
+| CCN | Terme specifique domaine | string | A EXTRAIRE |
 
 ## Regles de conformite
 
-- `R-001`: Toute sortie issue du playbook reste marquee `DRAFT - Validation professionnelle requise` tant que `validated_by_human` n'est pas vrai.
-- `R-002`: Chaque conclusion substantielle doit porter un `source_status` explicite: official, secondary, web, unverified ou not_found.
-- `R-003`: Chaque extraction ou scoring doit inclure `confidence` entre 0 et 1 et signaler les hypotheses qui limitent la fiabilite.
-- `R-TRA-001`: Identifier type de contrat, poste, classification, CCN et lieu d'execution.
-- `R-TRA-002`: Verifier remuneration, avantages, temps de travail et minima applicables.
-- `R-TRA-003`: Controler periode essai, non-concurrence, mobilite et clauses sensibles.
+| ID | Regle | Severite | Controle | Action |
+| --- | --- | --- | --- | --- |
+| R-001 | Toute conclusion critique cite une source ou reste A VERIFIER | blocking | audit trail | Bloquer le livrable |
+| R-002 | Toute sortie externe porte la mention DRAFT | blocking | quality gate | Ajouter la mention |
+| R-003 | Toute observation a un score de confiance | major | risk score | Ajouter confidence |
+| R-TRA-001 | Identifier type de contrat, poste, classification, CCN et lieu d'execution. | major | playbook domaine | Revoir avec juriste |
+| R-TRA-002 | Verifier remuneration, avantages, temps de travail et minima applicables. | major | playbook domaine | Revoir avec juriste |
+| R-TRA-003 | Controler periode essai, non-concurrence, mobilite et clauses sensibles. | major | playbook domaine | Revoir avec juriste |
 
 ## Red flags automatiques
 
-- `RF-001`: Source officielle introuvable ou `source_status` not_found pour une regle juridique determinante.
-- `RF-002`: `validated_by_human` false alors que le livrable est presente comme final ou exploitable externe.
-- `RF-003`: `confidence` inferieur a 0.5 sur une clause, date, montant ou obligation materielle.
-- `RF-TRA-001`: Non-concurrence sans contrepartie, limitation temporelle ou zone definie.
-- `RF-TRA-002`: CCN absente ou incoherente avec l'activite et la classification.
-- `RF-TRA-003`: Periode essai ou renouvellement non source par le contrat ou la CCN.
+| ID | Red flag | Severite | Action |
+| --- | --- | --- | --- |
+| RF-001 | Source absente sur conclusion majeure | blocking | Marquer A VERIFIER |
+| RF-002 | Document illisible ignore | blocking | Ajouter a coverage |
+| RF-003 | validated_by_human absent | major | Ajouter human validation |
+| RF-TRA-001 | Non-concurrence sans contrepartie, limitation temporelle ou zone definie. | major | Revue juridique ciblee |
+| RF-TRA-002 | CCN absente ou incoherente avec l'activite et la classification. | major | Revue juridique ciblee |
+| RF-TRA-003 | Periode essai ou renouvellement non source par le contrat ou la CCN. | major | Revue juridique ciblee |
