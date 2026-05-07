@@ -25,6 +25,7 @@ except ImportError:
 ROOT = Path(__file__).resolve().parents[1]
 PLUGINS = ROOT / "plugins"
 MANAGED = ROOT / "managed-agent-cookbooks"
+ARCHIVE = ROOT / "archive"
 errors: list[str] = []
 checked = 0
 
@@ -37,8 +38,18 @@ def rel(p: Path) -> str:
     return str(p.relative_to(ROOT))
 
 
+def active_glob(pattern: str) -> list[Path]:
+    return [path for path in ROOT.glob(pattern) if ARCHIVE not in path.parents]
+
+
+def managed_yaml_files() -> list[Path]:
+    if not MANAGED.is_dir():
+        return []
+    return sorted(MANAGED.rglob("*.yaml"))
+
+
 # --- 1. YAML parse ----------------------------------------------------------
-for yml in sorted(MANAGED.rglob("*.yaml")):
+for yml in managed_yaml_files():
     checked += 1
     try:
         with open(yml) as f:
@@ -53,7 +64,7 @@ json_globs = [
     "managed-agent-cookbooks/*/steering-examples.json",
 ]
 for pat in json_globs:
-    for jf in sorted(ROOT.glob(pat)):
+    for jf in sorted(active_glob(pat)):
         checked += 1
         try:
             json.loads(jf.read_text())
@@ -108,7 +119,7 @@ def check_refs(yml: Path) -> None:
                 err(f"ref: {rel(yml)}: callable_agents.manifest -> {c['manifest']} (not found)")
 
 
-for yml in sorted(MANAGED.rglob("*.yaml")):
+for yml in managed_yaml_files():
     check_refs(yml)
 
 # --- 4b. agent-plugin bundled skills match vertical source -----------------
@@ -150,12 +161,13 @@ for p in json.loads(mp.read_text()).get("plugins", []):
         err(f"marketplace: {p['name']} source -> {p['source']} (no plugin.json)")
 
 # --- 5. required files per managed-agent -----------------------------------
-for d in sorted(MANAGED.iterdir()):
-    if not d.is_dir():
-        continue
-    for req in ("agent.yaml", "README.md", "steering-examples.json"):
-        if not (d / req).is_file():
-            err(f"missing: {rel(d)}/{req}")
+if MANAGED.is_dir():
+    for d in sorted(MANAGED.iterdir()):
+        if not d.is_dir():
+            continue
+        for req in ("agent.yaml", "README.md", "steering-examples.json"):
+            if not (d / req).is_file():
+                err(f"missing: {rel(d)}/{req}")
 
 # --- report ----------------------------------------------------------------
 if errors:
