@@ -18,6 +18,41 @@ WORKFLOWS = [
     "tabular-due-diligence",
 ]
 
+WORKFLOW_INTAKE_METADATA = {
+    "revue-conformite-interne": {
+        "detected_type": "policy_or_contract",
+        "legal_domain": "compliance",
+    },
+    "analyse-contrats-fournisseurs": {
+        "detected_type": "supplier_agreement",
+        "legal_domain": "contracts_supply",
+    },
+    "chronologie-contentieux": {
+        "detected_type": "litigation_file",
+        "legal_domain": "litigation",
+    },
+    "jurisprudence-multilingue": {
+        "detected_type": "court_decision",
+        "legal_domain": "case_law",
+    },
+    "revue-contrats-travail": {
+        "detected_type": "employment_agreement",
+        "legal_domain": "employment",
+    },
+    "red-flags-bail": {
+        "detected_type": "lease_agreement",
+        "legal_domain": "real_estate",
+    },
+    "note-information-amf": {
+        "detected_type": "amf_disclosure_file",
+        "legal_domain": "capital_markets",
+    },
+    "tabular-due-diligence": {
+        "detected_type": "data_room_document",
+        "legal_domain": "due_diligence",
+    },
+}
+
 COMMON_SCHEMAS = [
     "document-intake.schema.json",
     "source-citation.schema.json",
@@ -59,6 +94,21 @@ class LegalFrProductionGradeTest(unittest.TestCase):
                 self.assertGreater(len(schema["required"]), 0)
                 self.assertIn("additionalProperties", schema)
                 self.assertFalse(schema["additionalProperties"])
+
+    def test_document_intake_schema_allows_workflow_eval_metadata(self) -> None:
+        schema = load_json(LEGAL_FR / "schemas" / "common" / "document-intake.schema.json")
+        detected_type_values = schema["properties"]["detected_type"]["enum"]
+        legal_domain_values = schema["properties"]["legal_domain"]["enum"]
+        self.assertEqual(len(detected_type_values), len(set(detected_type_values)))
+        self.assertEqual(len(legal_domain_values), len(set(legal_domain_values)))
+        detected_type_enum = set(detected_type_values)
+        legal_domain_enum = set(legal_domain_values)
+
+        for workflow, intake_metadata in WORKFLOW_INTAKE_METADATA.items():
+            with self.subTest(workflow=workflow, field="detected_type"):
+                self.assertIn(intake_metadata["detected_type"], detected_type_enum)
+            with self.subTest(workflow=workflow, field="legal_domain"):
+                self.assertIn(intake_metadata["legal_domain"], legal_domain_enum)
 
     def test_each_workflow_has_extraction_and_report_schemas(self) -> None:
         for workflow in WORKFLOWS:

@@ -22,7 +22,15 @@
         "lease",
         "employment",
         "financial",
-        "unknown"
+        "unknown",
+        "policy_or_contract",
+        "supplier_agreement",
+        "litigation_file",
+        "court_decision",
+        "employment_agreement",
+        "lease_agreement",
+        "amf_disclosure_file",
+        "data_room_document"
       ]
     },
     "language": {
@@ -44,7 +52,13 @@
         "contentieux",
         "capital_markets",
         "due_diligence",
-        "unknown"
+        "unknown",
+        "compliance",
+        "contracts_supply",
+        "litigation",
+        "case_law",
+        "employment",
+        "real_estate"
       ]
     },
     "readability": {

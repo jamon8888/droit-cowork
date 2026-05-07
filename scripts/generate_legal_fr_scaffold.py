@@ -246,6 +246,33 @@ WORKFLOW_INTAKE_METADATA = {
     },
 }
 
+def unique_values(values: list[str]) -> list[str]:
+    return list(dict.fromkeys(values))
+
+
+DOCUMENT_INTAKE_DETECTED_TYPES = unique_values([
+    "contract",
+    "case_law",
+    "email",
+    "pleading",
+    "lease",
+    "employment",
+    "financial",
+    "unknown",
+    *[metadata["detected_type"] for metadata in WORKFLOW_INTAKE_METADATA.values()],
+])
+
+DOCUMENT_INTAKE_LEGAL_DOMAINS = unique_values([
+    "contracts",
+    "social",
+    "baux",
+    "contentieux",
+    "capital_markets",
+    "due_diligence",
+    "unknown",
+    *[metadata["legal_domain"] for metadata in WORKFLOW_INTAKE_METADATA.values()],
+])
+
 PRODUCTION_REQUIRED_TERMS = [
     "DRAFT - Validation professionnelle requise",
     "validated_by_human",
@@ -749,9 +776,9 @@ def common_schemas() -> dict[str, dict]:
             {
                 "document_id": {"type": "string", "minLength": 1},
                 "filename": {"type": "string", "minLength": 1},
-                "detected_type": string_enum(["contract", "case_law", "email", "pleading", "lease", "employment", "financial", "unknown"]),
+                "detected_type": string_enum(DOCUMENT_INTAKE_DETECTED_TYPES),
                 "language": string_enum(["fr", "en", "de", "other", "mixed"]),
-                "legal_domain": string_enum(["contracts", "social", "baux", "contentieux", "capital_markets", "due_diligence", "unknown"]),
+                "legal_domain": string_enum(DOCUMENT_INTAKE_LEGAL_DOMAINS),
                 "readability": {
                     "type": "object",
                     "additionalProperties": False,
