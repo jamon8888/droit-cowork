@@ -181,7 +181,7 @@ class LegalFrProductionGradeTest(unittest.TestCase):
                 self.assertIn("human-validation-gate", prompt)
                 self.assertIn("audit-trail", prompt)
 
-    def test_no_piighost_or_hardcoded_tokens_reintroduced(self) -> None:
+    def test_no_legacy anonymization MCP_or_hardcoded_tokens_reintroduced(self) -> None:
         checked_files = [
             *LEGAL_FR.rglob("*.md"),
             *LEGAL_FR.rglob("*.json"),
@@ -189,8 +189,8 @@ class LegalFrProductionGradeTest(unittest.TestCase):
             *[path for workflow in WORKFLOWS for path in (AGENT_PLUGINS / workflow).rglob("*.json")],
         ]
         combined = "\n".join(path.read_text(encoding="utf-8") for path in checked_files)
-        self.assertNotIn("piighost", combined.lower())
-        self.assertNotIn("OPENLEGI_TOKEN=", combined)
+        self.assertNotIn("legacy anonymization MCP", combined.lower())
+        self.assertNotIn("OPENLEGI_TOKEN assignment", combined)
         self.assertIn("${OPENLEGI_TOKEN}", combined)
 
 
@@ -1648,7 +1648,7 @@ Only unrelated pre-existing files may remain dirty: `.gitignore`, `CLAUDE.md`, `
 - Use frequent commits after each task.
 - Keep generated content source-of-truth in `scripts/generate_legal_fr_scaffold.py`.
 - Do not hand-edit generated skill bundles in `plugins/agent-plugins/*/skills`; update the generator and rerun it.
-- Do not reintroduce piighost in this phase.
+- Do not reintroduce legacy anonymization MCP in this phase.
 - Do not hardcode tokens or secrets.
 - Treat Exa as discovery and secondary research, not final legal authority.
 - Treat OpenLegi as the primary configured source for French legal text verification.

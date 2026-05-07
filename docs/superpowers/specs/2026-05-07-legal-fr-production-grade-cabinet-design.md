@@ -64,7 +64,7 @@ Cette V2 ne doit pas viser:
 - donner une conclusion juridique definitive sans mention d'incertitude;
 - resoudre toute la confidentialite par promesse textuelle uniquement;
 - construire un SaaS complet avec comptes clients, facturation et monitoring cloud;
-- integrer piighost dans cette phase, sauf decision ulterieure.
+- integrer legacy anonymization MCP dans cette phase, sauf decision ulterieure.
 
 ## Architecture Cible
 
@@ -474,7 +474,7 @@ Un livrable ne passe pas en sortie finale si:
 
 ## Confidentialite et Donnees
 
-Piighost est volontairement hors scope pour cette phase, mais la V2 doit deja imposer:
+legacy anonymization MCP est volontairement hors scope pour cette phase, mais la V2 doit deja imposer:
 
 - minimisation des donnees dans les sorties;
 - pas de noms, adresses, IBAN, NIR ou informations sensibles dans les exemples;

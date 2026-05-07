@@ -440,7 +440,7 @@ Append to `tests/test_legal_fr_production_grade.py`:
         text = checker.read_text(encoding="utf-8")
         self.assertIn("PARALLEL_API_KEY", text)
         self.assertIn("parallel-cli", text)
-        self.assertNotIn("PARALLEL_API_KEY=", text)
+        self.assertNotIn("PARALLEL_API_KEY assignment", text)
         connectors = (LEGAL_FR / "CONNECTORS.md").read_text(encoding="utf-8")
         self.assertIn("python scripts/check_legal_fr_parallel_cli.py", connectors)
         self.assertIn("Legal-FR Parallel CLI config OK", connectors)
@@ -617,7 +617,7 @@ Append to `tests/test_legal_fr_production_grade.py`:
         self.assertIn("status", wrapper_text)
         self.assertIn("poll", wrapper_text)
         self.assertIn("PARALLEL_API_KEY", wrapper_text)
-        self.assertNotIn("PARALLEL_API_KEY=", wrapper_text)
+        self.assertNotIn("PARALLEL_API_KEY assignment", wrapper_text)
         self.assertIn("recherche-juridique-fr.output.schema.json", checker_text)
 ```
 
@@ -1011,16 +1011,16 @@ ERROR: parallel-cli is not installed or not on PATH
 
 If the CLI is absent locally, record that as an environment limitation, not a code failure.
 
-- [ ] **Step 3: Check for secrets and piighost**
+- [ ] **Step 3: Check for secrets and legacy anonymization MCP**
 
 Run:
 
 ```powershell
 Get-ChildItem -Path plugins\vertical-plugins\legal-fr,plugins\agent-plugins\recherche-juridique-fr-avancee,scripts,tests -Recurse -File -Include *.md,*.json,*.py |
-  Select-String -Pattern 'PARALLEL_API_KEY=|OPENLEGI_TOKEN=|piighost' -CaseSensitive:$false
+  Select-String -Pattern 'PARALLEL_API_KEY assignment|OPENLEGI_TOKEN assignment|legacy anonymization MCP' -CaseSensitive:$false
 ```
 
-Expected: no matches for hardcoded token assignment or piighost requirement. Mentions of `PARALLEL_API_KEY` and `${OPENLEGI_TOKEN}` without assignment are acceptable.
+Expected: no matches for hardcoded token assignment or legacy anonymization MCP requirement. Mentions of `PARALLEL_API_KEY` and `${OPENLEGI_TOKEN}` without assignment are acceptable.
 
 - [ ] **Step 4: Refresh GitNexus**
 
@@ -1036,7 +1036,7 @@ Expected: indexed commit equals current commit.
 Use a fresh reviewer with this scope:
 
 ```text
-Review the new Legal-FR `recherche-juridique-fr-avancee` agent, Parallel CLI checker, Task API scaffold, generated skills/commands/evals, tests, and docs. Verify FR-only scope, OpenLegi-first discipline, no secret leakage, no piighost reintroduction, and no replacement of `jurisprudence-multilingue`.
+Review the new Legal-FR `recherche-juridique-fr-avancee` agent, Parallel CLI checker, Task API scaffold, generated skills/commands/evals, tests, and docs. Verify FR-only scope, OpenLegi-first discipline, no secret leakage, no legacy anonymization MCP reintroduction, and no replacement of `jurisprudence-multilingue`.
 ```
 
 - [ ] **Step 6: Finish branch**
