@@ -53,8 +53,140 @@ Parallel CLI est adapte a ce role parce qu'il expose des commandes non interacti
 References:
 
 - `https://docs.parallel.ai/integrations/cli`
+- `https://docs.parallel.ai/task-api/task-quickstart`
 - `https://parallel.ai/blog/parallel-cli`
 - `https://github.com/parallel-web/parallel-web-tools`
+
+## Deuxieme couche: Parallel Task API
+
+La V1 doit rester centree sur Parallel CLI, car Cowork et les agents locaux travaillent naturellement en terminal. La Task API devient la deuxieme couche pour industrialiser les memes usages lorsque Legal-FR doit fonctionner comme backend repetable, batchable et observable.
+
+Positionnement:
+
+```text
+Couche 1 - Agent local / Cowork
+  -> parallel-cli
+  -> commandes Markdown Legal-FR
+  -> JSON via stdout
+  -> usage ponctuel par avocat, juriste ou operateur
+
+Couche 2 - Production backend
+  -> Parallel Task API
+  -> schemas Legal-FR comme input_schema/output_schema
+  -> run_id, polling, webhooks ou streaming events
+  -> stockage audit trail et resultats
+  -> batchs et enrichissements industrialises
+```
+
+La Task API est pertinente pour Legal-FR parce qu'elle transforme des travaux de recherche complexes en operations programmables, avec schemas, citations et niveaux de confiance. Elle ne doit pas etre appelee depuis chaque commande simple. Elle sert aux workflows longs, massifs ou a forte exigence de tracabilite.
+
+### Quand utiliser CLI vs Task API
+
+| Situation | Couche recommandee | Raison |
+|---|---|---|
+| Recherche ponctuelle dans Cowork | CLI | simple, agent terminal, sortie `--json` |
+| Extraction d'une URL unique | CLI | faible overhead |
+| Deep research de plus de quelques minutes | Task API | run_id, polling, timeout controle |
+| Enrichissement de dizaines/centaines de lignes | Task API | batch tracking et schemas |
+| Veille recurrente avec suivi d'evenements | Task API ou Monitor CLI | backend observable si production |
+| Integration SaaS ou orchestrateur | Task API | pas de dependance a un shell interactif |
+| Evals reproductibles avec schemas stricts | Task API | input/output schemas versionnes |
+
+### Fichiers proposes pour la couche 2
+
+```text
+scripts/
+  legal_fr_parallel_task.py
+  check_legal_fr_parallel_task_api.py
+
+plugins/vertical-plugins/legal-fr/
+  schemas/
+    parallel-task/
+      recherche-juridique-fr.input.schema.json
+      recherche-juridique-fr.output.schema.json
+      veille-juridique-fr.output.schema.json
+  skills/
+    parallel-task-api-juridique-fr/
+      SKILL.md
+```
+
+### Wrapper Python propose
+
+`scripts/legal_fr_parallel_task.py` doit etre un wrapper mince autour de l'API:
+
+- lire une question ou un JSON d'entree;
+- charger un schema Legal-FR;
+- creer un task run;
+- poller le resultat ou retourner le `run_id`;
+- sauvegarder une sortie JSON normalisee;
+- ne jamais logger `PARALLEL_API_KEY`;
+- echouer clairement en cas de rate limit, timeout ou auth error.
+
+Commandes cibles:
+
+```bash
+python scripts/legal_fr_parallel_task.py run \
+  --workflow recherche-juridique-fr-avancee \
+  --input question.json \
+  --processor pro \
+  --output result.json
+
+python scripts/legal_fr_parallel_task.py status --run-id <run_id>
+python scripts/legal_fr_parallel_task.py poll --run-id <run_id> --output result.json
+```
+
+### Schemas Task API
+
+La couche Task API doit reutiliser les objets Legal-FR existants:
+
+- `document_intake`;
+- `source_citations`;
+- `findings`;
+- `risk_score`;
+- `audit_trail`;
+- `human_validation`.
+
+Output minimal:
+
+```json
+{
+  "workflow": "recherche-juridique-fr-avancee",
+  "draft_notice": "DRAFT - Validation professionnelle requise",
+  "question": "...",
+  "answer": "...",
+  "official_sources": [],
+  "secondary_sources": [],
+  "source_gaps": [],
+  "findings": [],
+  "audit_trail": [],
+  "human_validation": {
+    "required": true,
+    "status": "pending"
+  },
+  "parallel": {
+    "run_id": "...",
+    "processor": "pro",
+    "confidence": 0.0
+  }
+}
+```
+
+### Usages Task API prioritaires
+
+1. `tabular-due-diligence`: enrichissement public FR sur societe, dirigeants, sanctions, procedures et signaux faibles.
+2. `note-information-amf`: recherche longue sur doctrine AMF, documents emetteurs, sanctions et communiques.
+3. `chronologie-contentieux`: recherche publique longue sur decisions publiees et contexte procedural.
+4. `recherche-juridique-fr-avancee`: notes de recherche complexes avec citations et confidence.
+5. `veille-juridique-fr`: runs recurrents ou declenches par webhook dans un orchestrateur.
+
+### Guardrails specifiques Task API
+
+- Envoyer uniquement des questions, URLs publiques ou donnees minimales.
+- Ne jamais envoyer de dossier client brut sans decision explicite de confidentialite.
+- Preferer OpenLegi pour textes et jurisprudence officielle.
+- Utiliser Task API pour sources publiques et recherche web, pas pour stocker des secrets.
+- Garder `run_id`, processor, timestamps, schema version et confidence dans l'audit trail.
+- Tout resultat Task API reste un draft et doit passer les quality gates Legal-FR.
 
 ## Architecture
 
@@ -79,6 +211,11 @@ plugins/vertical-plugins/legal-fr/
       references/
         sources-veille-fr.md
         cadence-par-domaine.md
+    parallel-task-api-juridique-fr/
+      SKILL.md
+      references/
+        task-api-patterns.md
+        schema-mapping.md
   commands/
     recherche/
       chercher.md
@@ -87,6 +224,9 @@ plugins/vertical-plugins/legal-fr/
       verifier-sources.md
       enrichir-dossier.md
       veille.md
+      task-run.md
+      task-status.md
+      task-poll.md
 ```
 
 ### Agent Cowork
@@ -416,6 +556,20 @@ Checks locaux:
 - les commands Legal-FR referencent `--json`;
 - la doc mentionne les exit codes.
 
+Nouveau checker Task API propose:
+
+```text
+scripts/check_legal_fr_parallel_task_api.py
+```
+
+Checks locaux:
+
+- `PARALLEL_API_KEY` non hardcodee;
+- wrapper `scripts/legal_fr_parallel_task.py` present;
+- schemas Task API presents;
+- output schema contient `draft_notice`, `source_citations` ou equivalent, `audit_trail`, `human_validation`, `parallel.run_id`;
+- documentation indique que Task API est la couche 2, pas le chemin obligatoire pour usage local.
+
 Sorties attendues:
 
 ```text
@@ -481,8 +635,10 @@ Expected outputs:
 6. Synchroniser skills dans l'agent plugin.
 7. Ajouter eval fixtures et expected outputs.
 8. Mettre a jour README/CONNECTORS/CLAUDE Legal-FR.
-9. Etendre `scripts/check.py` si necessaire.
-10. Verifier: `scripts/check.py`, tests Legal-FR, eval runner, connector checker, nouveau checker Parallel.
+9. Documenter la couche Task API comme niveau 2.
+10. Ajouter wrapper et schemas Task API dans une phase separee.
+11. Etendre `scripts/check.py` si necessaire.
+12. Verifier: `scripts/check.py`, tests Legal-FR, eval runner, connector checker, nouveau checker Parallel.
 
 ## Criteres d'acceptation
 
@@ -496,3 +652,5 @@ Expected outputs:
 - Les tests et evals passent.
 - Aucun secret hardcode.
 - Aucun livrable externe sans `DRAFT - Validation professionnelle requise`.
+- La couche Task API est documentee comme couche 2 et ne remplace pas le CLI.
+- Les schemas Task API reutilisent les champs Legal-FR d'audit trail et validation humaine.
