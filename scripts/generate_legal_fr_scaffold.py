@@ -276,18 +276,214 @@ EVAL_CASE_DETAILS = {
 }
 
 
+CORE_PLAYBOOK_RULES = [
+    ("R-001", "Toute sortie issue du playbook reste marquee `DRAFT - Validation professionnelle requise` tant que `validated_by_human` n'est pas vrai."),
+    ("R-002", "Chaque conclusion substantielle doit porter un `source_status` explicite: official, secondary, web, unverified ou not_found."),
+    ("R-003", "Chaque extraction ou scoring doit inclure `confidence` entre 0 et 1 et signaler les hypotheses qui limitent la fiabilite."),
+]
+
+CORE_PLAYBOOK_RED_FLAGS = [
+    ("RF-001", "Source officielle introuvable ou `source_status` not_found pour une regle juridique determinante."),
+    ("RF-002", "`validated_by_human` false alors que le livrable est presente comme final ou exploitable externe."),
+    ("RF-003", "`confidence` inferieur a 0.5 sur une clause, date, montant ou obligation materielle."),
+]
+
+PLAYBOOK_DEFINITIONS = {
+    "playbook-cgv-standard.md": {
+        "title": "Playbook CGV Standard",
+        "domain": "conditions generales de vente B2B/B2C",
+        "terms": ["delai paiement", "penalites", "juridiction", "limitation responsabilite"],
+        "rules": [
+            ("R-CGV-001", "Verifier que les delais de paiement sont identifies et compatibles avec le cadre applicable."),
+            ("R-CGV-002", "Qualifier les penalites, indemnites et interets applicables en cas de retard."),
+            ("R-CGV-003", "Controler la coherence entre loi applicable, juridiction et limitation de responsabilite."),
+        ],
+        "red_flags": [
+            ("RF-CGV-001", "Delai paiement absent, excessif ou contradictoire entre plusieurs clauses."),
+            ("RF-CGV-002", "Penalites absentes ou incompatibles avec le regime commercial vise."),
+            ("RF-CGV-003", "Limitation responsabilite illisible, illimitee sans justification ou potentiellement desequilibree."),
+        ],
+    },
+    "playbook-dpa-art28.md": {
+        "title": "Playbook DPA Art. 28 RGPD",
+        "domain": "accord de sous-traitance RGPD article 28",
+        "terms": ["sous-traitant", "finalites", "duree", "mesures securite", "sort donnees"],
+        "rules": [
+            ("R-DPA-001", "Identifier le sous-traitant, le responsable de traitement et les categories de donnees traitees."),
+            ("R-DPA-002", "Verifier que les finalites, la duree et les instructions documentees sont explicites."),
+            ("R-DPA-003", "Controler les mesures securite, l'assistance, l'audit et le sort donnees en fin de prestation."),
+        ],
+        "red_flags": [
+            ("RF-DPA-001", "Sous-traitant ulterieur autorise sans encadrement ou information prealable."),
+            ("RF-DPA-002", "Finalites ou duree absentes, ouvertes ou incompatibles avec le contrat principal."),
+            ("RF-DPA-003", "Sort donnees non precise: restitution, suppression, conservation ou preuve d'effacement."),
+        ],
+    },
+    "playbook-contrats-fournisseurs.md": {
+        "title": "Playbook Contrats Fournisseurs",
+        "domain": "contrats fournisseurs et achats",
+        "terms": ["duree", "preavis", "prix", "revision", "penalites", "exclusivite"],
+        "rules": [
+            ("R-FOU-001", "Extraire duree, renouvellement, preavis et conditions de sortie."),
+            ("R-FOU-002", "Verifier prix, revision, indexation et penalites operationnelles ou financieres."),
+            ("R-FOU-003", "Qualifier les clauses d'exclusivite, dependance, cession et changement de controle."),
+        ],
+        "red_flags": [
+            ("RF-FOU-001", "Renouvellement automatique sans preavis exploitable ou calendrier d'alerte."),
+            ("RF-FOU-002", "Revision de prix unilaterale ou penalites disproportionnees."),
+            ("RF-FOU-003", "Exclusivite ou dependance fournisseur sans mecanisme de sortie."),
+        ],
+    },
+    "playbook-contrats-travail.md": {
+        "title": "Playbook Contrats Travail",
+        "domain": "contrats de travail francais",
+        "terms": ["non-concurrence", "remuneration", "periode essai", "CCN"],
+        "rules": [
+            ("R-TRA-001", "Identifier type de contrat, poste, classification, CCN et lieu d'execution."),
+            ("R-TRA-002", "Verifier remuneration, avantages, temps de travail et minima applicables."),
+            ("R-TRA-003", "Controler periode essai, non-concurrence, mobilite et clauses sensibles."),
+        ],
+        "red_flags": [
+            ("RF-TRA-001", "Non-concurrence sans contrepartie, limitation temporelle ou zone definie."),
+            ("RF-TRA-002", "CCN absente ou incoherente avec l'activite et la classification."),
+            ("RF-TRA-003", "Periode essai ou renouvellement non source par le contrat ou la CCN."),
+        ],
+    },
+    "playbook-bail-commercial.md": {
+        "title": "Playbook Bail Commercial",
+        "domain": "baux commerciaux",
+        "terms": ["duree", "charges", "indexation", "renouvellement", "eviction"],
+        "rules": [
+            ("R-BAI-001", "Extraire duree, prise d'effet, destination, renouvellement et conge."),
+            ("R-BAI-002", "Verifier charges, travaux, taxes, depot de garantie et repartition Pinel."),
+            ("R-BAI-003", "Controler indexation, revision, eviction et indemnite eventuelle."),
+        ],
+        "red_flags": [
+            ("RF-BAI-001", "Charges non detaillees ou transfert au preneur potentiellement non conforme."),
+            ("RF-BAI-002", "Indexation incoherente, indice absent ou clause d'echelle mobile asymetrique."),
+            ("RF-BAI-003", "Renonciation ou restriction au renouvellement ou a l'eviction sans analyse."),
+        ],
+    },
+    "playbook-cession-pme.md": {
+        "title": "Playbook Cession PME",
+        "domain": "cession de PME",
+        "terms": ["GAP", "conditions suspensives", "cession", "changement controle"],
+        "rules": [
+            ("R-CES-001", "Identifier perimetre de cession, prix, ajustement et calendrier closing."),
+            ("R-CES-002", "Verifier GAP, plafonds, franchises, durees et procedures de reclamation."),
+            ("R-CES-003", "Controler conditions suspensives, cession des contrats et changement controle."),
+        ],
+        "red_flags": [
+            ("RF-CES-001", "Condition suspensive non purgee ou preuve de levee absente."),
+            ("RF-CES-002", "GAP sans plafond, duree ou procedure de notification claire."),
+            ("RF-CES-003", "Changement controle declenchant consentement tiers non obtenu."),
+        ],
+    },
+    "playbook-lbo.md": {
+        "title": "Playbook LBO",
+        "domain": "financement LBO",
+        "terms": ["dette", "covenants", "suretes", "restrictions"],
+        "rules": [
+            ("R-LBO-001", "Identifier dette senior, dette mezzanine, maturite, tirages et remboursement."),
+            ("R-LBO-002", "Verifier covenants financiers, testing dates, equity cure et reporting."),
+            ("R-LBO-003", "Controler suretes, garanties, restrictions de distribution et dette additionnelle."),
+        ],
+        "red_flags": [
+            ("RF-LBO-001", "Covenants absents, non chiffres ou sans methode de calcul."),
+            ("RF-LBO-002", "Suretes ou rangs incompatibles avec la structure de dette."),
+            ("RF-LBO-003", "Restrictions bloquant operations courantes ou distributions sans carve-out."),
+        ],
+    },
+    "playbook-immobilier.md": {
+        "title": "Playbook Immobilier",
+        "domain": "due diligence immobiliere",
+        "terms": ["titres", "baux", "charges", "urbanisme"],
+        "rules": [
+            ("R-IMM-001", "Verifier titres, origine de propriete, servitudes et droits de tiers."),
+            ("R-IMM-002", "Extraire baux, charges, travaux, assurances et fiscalite recurrente."),
+            ("R-IMM-003", "Controler urbanisme, autorisations, conformite, environnement et contentieux."),
+        ],
+        "red_flags": [
+            ("RF-IMM-001", "Titre ou servitude determinant absent de la data room."),
+            ("RF-IMM-002", "Charges ou travaux significatifs non attribues a une partie."),
+            ("RF-IMM-003", "Urbanisme non verifie ou autorisation essentielle manquante."),
+        ],
+    },
+    "playbook-dette.md": {
+        "title": "Playbook Dette",
+        "domain": "contrats de dette",
+        "terms": ["maturite", "taux", "covenants", "defaut"],
+        "rules": [
+            ("R-DET-001", "Identifier maturite, amortissement, taux, marges, commissions et prepayment."),
+            ("R-DET-002", "Verifier covenants, representations, undertakings et obligations de reporting."),
+            ("R-DET-003", "Controler cas de defaut, cross-default, grace periods, suretes et acceleration."),
+        ],
+        "red_flags": [
+            ("RF-DET-001", "Maturite ou taux absent, variable non indexe ou formule incomplete."),
+            ("RF-DET-002", "Covenants sans seuil, periodicite ou consequence de breach."),
+            ("RF-DET-003", "Defaut automatique ou acceleration sans cure period identifiable."),
+        ],
+    },
+}
+
+
+def bullets(items: list[str]) -> str:
+    return "\n".join(f"- {item}" for item in items)
+
+
+def coded_bullets(items: list[tuple[str, str]]) -> str:
+    return "\n".join(f"- `{code}`: {description}" for code, description in items)
+
+
+def playbook_text(filename: str, definition: dict) -> str:
+    title = definition["title"]
+    terms = definition["terms"]
+    rules = [*CORE_PLAYBOOK_RULES, *definition["rules"]]
+    red_flags = [*CORE_PLAYBOOK_RED_FLAGS, *definition["red_flags"]]
+    return f"""# {title}
+
+## Metadata
+
+- playbook_id: `{filename.removesuffix(".md")}`
+- domain: {definition["domain"]}
+- source_status: `unverified`
+- validated_by_human: `false`
+- confidence: `0.0`
+- draft_notice: `DRAFT - Validation professionnelle requise`
+- validation_required: `true`
+
+## Termes a extraire
+
+{bullets(terms)}
+
+## Regles de conformite
+
+{coded_bullets(rules)}
+
+## Red flags automatiques
+
+{coded_bullets(red_flags)}
+"""
+
+
 PLAYBOOKS = {
-    "README.md": "# Playbooks Legal-FR\n\nLes playbooks codifient les standards cabinet et les termes a extraire. Ils servent d'entree stable aux agents orchestrateurs.\n",
-    "format-playbook.md": "# Format Playbook Legal-FR\n\nUn playbook contient un frontmatter, une liste de termes a extraire, des regles de conformite, des red flags et un format JSON de sortie.\n",
-    "playbook-cgv-standard.md": "# Playbook CGV Standard\n\n## Regles\n- Loi applicable: droit francais.\n- Juridiction: juridiction francaise clairement indiquee.\n- Delais de paiement: verifier la coherence avec le Code de commerce.\n",
-    "playbook-dpa-art28.md": "# Playbook DPA Art. 28 RGPD\n\n## Regles\n- Objet et duree du traitement.\n- Categories de donnees et personnes concernees.\n- Sous-traitants ulterieurs encadres.\n- Assistance, securite, suppression et audit.\n",
-    "playbook-contrats-fournisseurs.md": "# Playbook Contrats Fournisseurs\n\n## Termes\nDuree, preavis, prix, revision, delai de paiement, penalites, exclusivite, cession, loi applicable, juridiction.\n",
-    "playbook-contrats-travail.md": "# Playbook Contrats Travail\n\n## Termes\nType de contrat, remuneration, periode d'essai, non-concurrence, mobilite, CCN, temps de travail, rupture.\n",
-    "playbook-bail-commercial.md": "# Playbook Bail Commercial\n\n## Termes\nDuree, loyer, indexation, charges, renouvellement, cession, destination, travaux, depot de garantie.\n",
-    "playbook-cession-pme.md": "# Playbook Cession PME\n\n## Termes\nPrix, ajustement, GAP, conditions suspensives, MAC, non-concurrence, passif social, litiges.\n",
-    "playbook-lbo.md": "# Playbook LBO\n\n## Termes\nDette, covenants, garanties, management package, conditions de tirage, cas de defaut, suretes.\n",
-    "playbook-immobilier.md": "# Playbook Immobilier\n\n## Termes\nTitres, baux, urbanisme, environnement, servitudes, fiscalite, assurances, travaux.\n",
-    "playbook-dette.md": "# Playbook Dette\n\n## Termes\nMaturite, taux, garanties, covenants, remboursement anticipe, defaut, ranking, suretes.\n",
+    "README.md": """# Playbooks Legal-FR
+
+Les playbooks codifient les standards cabinet et les termes a extraire. Ils servent d'entree stable aux agents orchestrateurs.
+
+Signaux obligatoires dans les playbooks operationnels:
+- `source_status`
+- `validated_by_human`
+- `confidence`
+- `DRAFT - Validation professionnelle requise`
+""",
+    "format-playbook.md": """# Format Playbook Legal-FR
+
+Un playbook operationnel contient les sections `## Metadata`, `## Termes a extraire`, `## Regles de conformite` et `## Red flags automatiques`.
+
+Les champs obligatoires sont `source_status`, `validated_by_human`, `confidence` et `DRAFT - Validation professionnelle requise`.
+""",
+    **{filename: playbook_text(filename, definition) for filename, definition in PLAYBOOK_DEFINITIONS.items()},
 }
 
 

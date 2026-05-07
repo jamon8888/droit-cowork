@@ -1,3 +1,5 @@
 # Format Playbook Legal-FR
 
-Un playbook contient un frontmatter, une liste de termes a extraire, des regles de conformite, des red flags et un format JSON de sortie.
+Un playbook operationnel contient les sections `## Metadata`, `## Termes a extraire`, `## Regles de conformite` et `## Red flags automatiques`.
+
+Les champs obligatoires sont `source_status`, `validated_by_human`, `confidence` et `DRAFT - Validation professionnelle requise`.
