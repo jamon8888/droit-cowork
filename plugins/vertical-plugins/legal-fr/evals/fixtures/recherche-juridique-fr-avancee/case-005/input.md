@@ -14,6 +14,14 @@ DRAFT - Validation professionnelle requise
 
 `medium`
 
+## Cas eval recherche-juridique-fr-avancee
+
+Deep research async avec run_id et interaction_id.
+
+Question: verifier l'etat du droit francais applicable.
+Contrainte: OpenLegi doit etre interroge avant Parallel.
+Source attendue: officielle si conclusion critique.
+
 ## Cabinet scenario
 
 Affirmation juridique plausible mais source officielle introuvable dans le dossier.

@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 LEGAL_FR = ROOT / "plugins" / "vertical-plugins" / "legal-fr"
 EVALS = LEGAL_FR / "evals"
+EXPECTED_ROOT = EVALS / "expected"
 
 WORKFLOWS = [
     "revue-conformite-interne",
@@ -187,6 +188,25 @@ class LegalFrEvalFixturesTest(unittest.TestCase):
                     self.assertIn(section, rubric)
                 for _case_id, case_type, _risk_level in EVAL_CASES:
                     self.assertIn(case_type, rubric)
+
+    def test_recherche_juridique_fr_expected_outputs_track_parallel_metadata(self) -> None:
+        expected_root = EXPECTED_ROOT / "recherche-juridique-fr-avancee"
+        self.assertTrue(expected_root.is_dir())
+        for expected_file in sorted(expected_root.glob("*.expected.json")):
+            data = load_json(expected_file)
+            with self.subTest(file=expected_file.name):
+                self.assertEqual(data["workflow"], "recherche-juridique-fr-avancee")
+                self.assertEqual(
+                    data["document_intake"]["detected_type"],
+                    "legal_research_question",
+                )
+                self.assertEqual(
+                    data["document_intake"]["legal_domain"],
+                    "french_legal_research",
+                )
+                self.assertIn("parallel", data)
+                self.assertIn("run_id", data["parallel"])
+                self.assertIn("source_gaps", data)
 
 
 if __name__ == "__main__":

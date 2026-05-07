@@ -396,6 +396,14 @@ EVAL_CASE_DETAILS = {
     },
 }
 
+RESEARCH_FR_EVAL_CASES = {
+    "case-001": "Question simple avec source officielle disponible.",
+    "case-002": "Conclusion critique sans source officielle, doit marquer A VERIFIER.",
+    "case-003": "Doctrine secondaire utile mais non suffisante seule.",
+    "case-004": "Veille AMF avec source institutionnelle.",
+    "case-005": "Deep research async avec run_id et interaction_id.",
+}
+
 
 CORE_PLAYBOOK_RULES = [
     ("R-001", "Toute conclusion critique cite une source ou reste A VERIFIER", "blocking", "audit trail", "Bloquer le livrable"),
@@ -1088,6 +1096,46 @@ The manual gate requires reviewers to preserve the draft notice, review `source_
 
 def eval_input(workflow: str, case_id: str, case_type: str, risk_level: str) -> str:
     details = EVAL_CASE_DETAILS[case_type]
+    if workflow == "recherche-juridique-fr-avancee":
+        research_note = RESEARCH_FR_EVAL_CASES[case_id]
+        return f"""# Eval fixture {case_id}: {workflow}
+
+DRAFT - Validation professionnelle requise
+
+## Workflow
+
+`{workflow}`
+
+## Case type
+
+`{case_type}`
+
+## Risk level
+
+`{risk_level}`
+
+## Cas eval recherche-juridique-fr-avancee
+
+{research_note}
+
+Question: verifier l'etat du droit francais applicable.
+Contrainte: OpenLegi doit etre interroge avant Parallel.
+Source attendue: officielle si conclusion critique.
+
+## Cabinet scenario
+
+{details["input_note"]}
+
+## Expected handling
+
+{details["expected_behavior"]}
+
+## Source package
+
+- Document reference: `{workflow}-{case_id}-document`
+- Source status to test: `{details["source_status"]}`
+- Human validation remains mandatory before reliance.
+"""
     return f"""# Eval fixture {case_id}: {workflow}
 
 DRAFT - Validation professionnelle requise
@@ -1199,7 +1247,7 @@ def expected_eval_output(workflow: str, case_id: str, case_type: str, risk_level
         },
         "audit_trail": audit_trail,
     }
-    return {
+    expected = {
         "workflow": workflow,
         "document_intake": document_intake,
         "draft_notice": "DRAFT - Validation professionnelle requise",
@@ -1208,6 +1256,16 @@ def expected_eval_output(workflow: str, case_id: str, case_type: str, risk_level
         "human_validation": human_validation,
         "coverage": coverage,
     }
+    if workflow == "recherche-juridique-fr-avancee":
+        expected["parallel"] = {
+            "run_id": "trun_eval_reference",
+            "processor": "pro",
+            "confidence": 0.78,
+        }
+        expected["official_sources"] = [source_citation] if details["source_status"] == "official" else []
+        expected["secondary_sources"] = [] if details["source_status"] != "secondary" else [source_citation]
+        expected["source_gaps"] = ["A VERIFIER si aucune source officielle n'est confirmee"]
+    return expected
 
 
 def rubric_text(workflow: str) -> str:

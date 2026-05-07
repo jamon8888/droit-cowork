@@ -94,5 +94,15 @@
     "documents_seen": 1,
     "documents_processed": 0,
     "documents_unreadable": 1
-  }
+  },
+  "parallel": {
+    "run_id": "trun_eval_reference",
+    "processor": "pro",
+    "confidence": 0.78
+  },
+  "official_sources": [],
+  "secondary_sources": [],
+  "source_gaps": [
+    "A VERIFIER si aucune source officielle n'est confirmee"
+  ]
 }

@@ -14,6 +14,14 @@ DRAFT - Validation professionnelle requise
 
 `high`
 
+## Cas eval recherche-juridique-fr-avancee
+
+Conclusion critique sans source officielle, doit marquer A VERIFIER.
+
+Question: verifier l'etat du droit francais applicable.
+Contrainte: OpenLegi doit etre interroge avant Parallel.
+Source attendue: officielle si conclusion critique.
+
 ## Cabinet scenario
 
 Clause manifestement sensible et source officielle disponible pour qualifier le risque.

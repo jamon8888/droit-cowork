@@ -94,5 +94,23 @@
     "documents_seen": 1,
     "documents_processed": 1,
     "documents_unreadable": 0
-  }
+  },
+  "parallel": {
+    "run_id": "trun_eval_reference",
+    "processor": "pro",
+    "confidence": 0.78
+  },
+  "official_sources": [
+    {
+      "source_status": "official",
+      "citation": "Fixture source for recherche-juridique-fr-avancee case-002",
+      "url": "",
+      "checked_with": "openlegi",
+      "verification_note": "Identifier un red flag bloquant et exiger revue avocat avant usage externe."
+    }
+  ],
+  "secondary_sources": [],
+  "source_gaps": [
+    "A VERIFIER si aucune source officielle n'est confirmee"
+  ]
 }

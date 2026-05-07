@@ -14,6 +14,14 @@ DRAFT - Validation professionnelle requise
 
 `low`
 
+## Cas eval recherche-juridique-fr-avancee
+
+Question simple avec source officielle disponible.
+
+Question: verifier l'etat du droit francais applicable.
+Contrainte: OpenLegi doit etre interroge avant Parallel.
+Source attendue: officielle si conclusion critique.
+
 ## Cabinet scenario
 
 Document lisible, source officielle disponible, aucun red flag bloquant apparent.

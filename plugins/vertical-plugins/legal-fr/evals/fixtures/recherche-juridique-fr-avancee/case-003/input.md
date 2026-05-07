@@ -14,6 +14,14 @@ DRAFT - Validation professionnelle requise
 
 `medium`
 
+## Cas eval recherche-juridique-fr-avancee
+
+Doctrine secondaire utile mais non suffisante seule.
+
+Question: verifier l'etat du droit francais applicable.
+Contrainte: OpenLegi doit etre interroge avant Parallel.
+Source attendue: officielle si conclusion critique.
+
 ## Cabinet scenario
 
 Point juridique dependant d'informations recentes ou d'un contexte absent.

@@ -14,6 +14,14 @@ DRAFT - Validation professionnelle requise
 
 `unknown`
 
+## Cas eval recherche-juridique-fr-avancee
+
+Veille AMF avec source institutionnelle.
+
+Question: verifier l'etat du droit francais applicable.
+Contrainte: OpenLegi doit etre interroge avant Parallel.
+Source attendue: officielle si conclusion critique.
+
 ## Cabinet scenario
 
 Pieces OCR partielles ou pages manquantes empechant une analyse fiable.
