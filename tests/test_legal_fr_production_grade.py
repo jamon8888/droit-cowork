@@ -202,6 +202,17 @@ class LegalFrProductionGradeTest(unittest.TestCase):
         self.assertIn("human_validation", properties)
         self.assertIn("parallel", properties)
 
+    def test_parallel_cli_checker_exists_and_documents_no_secret_policy(self) -> None:
+        checker = ROOT / "scripts" / "check_legal_fr_parallel_cli.py"
+        self.assertTrue(checker.is_file())
+        text = checker.read_text(encoding="utf-8")
+        self.assertIn("PARALLEL_API_KEY", text)
+        self.assertIn("parallel-cli", text)
+        self.assertNotIn("PARALLEL_API_KEY=", text)
+        connectors = (LEGAL_FR / "CONNECTORS.md").read_text(encoding="utf-8")
+        self.assertIn("python scripts/check_legal_fr_parallel_cli.py", connectors)
+        self.assertIn("Legal-FR Parallel CLI config OK", connectors)
+
     def test_no_piighost_or_hardcoded_tokens_reintroduced(self) -> None:
         checked_files = [
             *LEGAL_FR.rglob("*.md"),

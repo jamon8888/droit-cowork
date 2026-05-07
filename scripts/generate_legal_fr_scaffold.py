@@ -1479,6 +1479,18 @@ Installation recommandee: `npx skills add parallel-web/parallel-agent-skills --a
 
 Parallel CLI is the local/Cowork execution layer for advanced French legal research.
 
+Install options:
+
+```bash
+pipx install "parallel-web-tools[cli]"
+```
+
+or:
+
+```bash
+npm install -g parallel-web-cli
+```
+
 Verification:
 
 ```bash
@@ -1488,6 +1500,13 @@ python scripts/check_legal_fr_parallel_cli.py
 Expected when the CLI is installed and local auth or `PARALLEL_API_KEY` is available:
 
 ```text
+Legal-FR Parallel CLI config OK
+```
+
+If `PARALLEL_API_KEY` is not set, local login or device flow may still work. The checker prints:
+
+```text
+WARN: PARALLEL_API_KEY is not set; parallel-cli must be authenticated by local login or device flow.
 Legal-FR Parallel CLI config OK
 ```
 """,
