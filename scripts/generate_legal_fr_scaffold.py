@@ -1159,6 +1159,8 @@ def skill_text(name: str, description: str) -> str:
     red_flags_section = ""
     if red_flags:
         red_flags_section = "\n## Red flags a surveiller\n\n" + "\n".join(f"- {flag}." for flag in red_flags) + "\n"
+    integration_section = skill_integration_section(name)
+    integration_block = f"\n\n{integration_section.rstrip()}" if integration_section else ""
 
     content = f"""---
 name: {name}
@@ -1198,7 +1200,7 @@ description: {description}
 - Verifier les affirmations de droit positif avec une source officielle francaise ou europeenne, en priorite OpenLegi/Legifrance lorsque disponible.
 - Citer les references utiles: code, article, juridiction, date, numero, ECLI ou source AMF selon le domaine.
 - Marquer `A VERIFIER` et `source_status: unverified` si la source officielle n'est pas disponible dans le dossier ou via connecteur.
-- Ne pas transformer une recherche web ou une source secondaire en conclusion juridique sans validation humaine.
+- Ne pas transformer une recherche web ou une source secondaire en conclusion juridique sans validation humaine.{integration_block}
 
 ## Output Contract
 
@@ -1208,6 +1210,93 @@ description: {description}
 {red_flags_section}
 """
     return content.rstrip() + "\n"
+
+
+def skill_integration_section(name: str) -> str:
+    if name == "parallel-recherche-juridique-fr":
+        return """## Installation Parallel CLI et Agent Skills
+
+Sources officielles:
+
+- https://docs.parallel.ai/integrations/cli
+- https://docs.parallel.ai/integrations/agent-skills
+
+Installation recommandee pour Cowork/Agent Skills:
+
+```bash
+pipx install "parallel-web-tools[cli]" && pipx ensurepath
+```
+
+Alternatives supportees:
+
+```bash
+uv tool install "parallel-web-tools[cli]"
+npm install -g parallel-web-cli
+```
+
+Installer les Parallel Agent Skills lorsque le runtime local les supporte:
+
+```bash
+npx skills add parallel-web/parallel-agent-skills --all --global
+```
+
+Authentification:
+
+```bash
+parallel-cli login --device
+parallel-cli auth --json
+```
+
+`PARALLEL_API_KEY` peut etre defini dans l'environnement utilisateur pour les executions non interactives. Ne jamais ecrire `PARALLEL_API_KEY` avec une valeur dans le repo, dans un playbook ou dans une sortie.
+
+Regles d'usage Legal-FR:
+
+- Utiliser `parallel-cli` seulement pour recherche web publique, extraction, enrichissement, veille ou recherche longue.
+- Ajouter `--json` a toutes les commandes executees par un agent ou un script.
+- Conserver OpenLegi comme source prioritaire pour le droit positif francais.
+- Classer les resultats Parallel comme `secondary` ou `unverified` tant qu'une source officielle n'a pas confirme le point de droit.
+"""
+    if name == "openlegi-recherche":
+        return """## Installation et validation OpenLegi MCP
+
+Source officielle:
+
+- https://www.openlegi.fr/documentation/
+
+Configuration Claude Desktop/Cowork recommandee via MCP remote:
+
+```json
+{
+  "mcpServers": {
+    "openlegi": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}"
+      ]
+    }
+  }
+}
+```
+
+Verifier la disponibilite sans consommer de quota MCP:
+
+```bash
+curl https://mcp.openlegi.fr/health
+python scripts/check_legal_fr_connectors.py --online
+```
+
+Le health check doit retourner `status: ok` et `services.legifrance: true`.
+
+Authentification et protocole:
+
+- Utiliser `OPENLEGI_TOKEN` comme variable d'environnement utilisateur, jamais comme secret hardcode.
+- La documentation OpenLegi accepte aussi le header `Authorization: Bearer <token>` pour les clients MCP avances.
+- Le transport MCP utilise SSE; les clients HTTP bas niveau doivent envoyer `Accept: application/json, text/event-stream`.
+- Ne pas traiter `https://mcp.openlegi.fr/legifrance/mcp` comme une API REST JSON simple; utiliser Claude Desktop, `mcp-remote@latest`, un SDK MCP ou un parser SSE.
+"""
+    return ""
 
 
 def agent_prompt(slug: str, meta: dict) -> str:
@@ -2065,19 +2154,47 @@ Endpoint: `https://mcp.exa.ai/mcp`.
 
 ## OpenLegi MCP
 
-Configuration MCP remote: `https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}`.
+Documentation officielle: https://www.openlegi.fr/documentation/.
+
+Configuration MCP remote officielle pour Claude Desktop/Cowork:
+
+```json
+{
+  "mcpServers": {
+    "openlegi": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}"
+      ]
+    }
+  }
+}
+```
 
 OpenLegi donne acces aux codes, jurisprudences, conventions collectives, JORF, LODA, RNE et EUR-Lex selon les outils disponibles.
 
+Ne jamais hardcoder `OPENLEGI_TOKEN`. La documentation OpenLegi decrit aussi le header `Authorization: Bearer <token>` pour les clients MCP avances. Le transport MCP utilise SSE; les clients HTTP bas niveau doivent envoyer `Accept: application/json, text/event-stream` et parser la reponse SSE au lieu d'appeler `response.json()` directement.
+
 ## Verification locale
 
-Le script de verification est local/offline: il lit uniquement `plugins/vertical-plugins/legal-fr/.mcp.json` et ne contacte ni Exa ni OpenLegi.
+Le script de verification est local/offline par defaut: il lit uniquement `plugins/vertical-plugins/legal-fr/.mcp.json` et ne contacte ni Exa ni OpenLegi.
 
 Commande:
 
 ```bash
 python scripts/check_legal_fr_connectors.py
 ```
+
+Verification online OpenLegi, sans token et sans consommer de quota MCP:
+
+```bash
+curl https://mcp.openlegi.fr/health
+python scripts/check_legal_fr_connectors.py --online
+```
+
+Le health check doit retourner `status: ok` et `services.legifrance: true`.
 
 Si `OPENLEGI_TOKEN` n'est pas configure dans l'environnement, la verification de configuration peut quand meme reussir avec l'avertissement attendu:
 
@@ -2100,17 +2217,29 @@ Installation recommandee: `npx skills add parallel-web/parallel-agent-skills --a
 
 Parallel CLI is the local/Cowork execution layer for advanced French legal research.
 
-Install options:
+Documentation officielle: https://docs.parallel.ai/integrations/cli.
+
+Installation recommandee pour un outil agent disponible dans le PATH:
 
 ```bash
-pipx install "parallel-web-tools[cli]"
+pipx install "parallel-web-tools[cli]" && pipx ensurepath
 ```
 
-or:
+Alternatives supportees:
 
 ```bash
+uv tool install "parallel-web-tools[cli]"
 npm install -g parallel-web-cli
 ```
+
+Authentification:
+
+```bash
+parallel-cli login --device
+parallel-cli auth --json
+```
+
+`PARALLEL_API_KEY` peut remplacer le login local pour les executions non interactives. Ne jamais stocker sa valeur dans le repo.
 
 Verification:
 

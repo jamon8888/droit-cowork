@@ -346,10 +346,53 @@ class LegalFrProductionGradeTest(unittest.TestCase):
         text = checker.read_text(encoding="utf-8")
         self.assertIn("PARALLEL_API_KEY", text)
         self.assertIn("parallel-cli", text)
+        self.assertIn('pipx install "parallel-web-tools[cli]" && pipx ensurepath', text)
+        self.assertIn('uv tool install "parallel-web-tools[cli]"', text)
+        self.assertIn("npm install -g parallel-web-cli", text)
+        self.assertIn("parallel-cli login --device", text)
         self.assertNotIn("PARALLEL_API_KEY=", text)
         connectors = (LEGAL_FR / "CONNECTORS.md").read_text(encoding="utf-8")
         self.assertIn("python scripts/check_legal_fr_parallel_cli.py", connectors)
         self.assertIn("Legal-FR Parallel CLI config OK", connectors)
+        self.assertIn('pipx install "parallel-web-tools[cli]" && pipx ensurepath', connectors)
+        self.assertIn("npx skills add parallel-web/parallel-agent-skills --all --global", connectors)
+
+    def test_parallel_skill_documents_official_install_and_auth_paths(self) -> None:
+        skill = (LEGAL_FR / "skills" / "parallel-recherche-juridique-fr" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        for required in [
+            "https://docs.parallel.ai/integrations/cli",
+            "https://docs.parallel.ai/integrations/agent-skills",
+            'pipx install "parallel-web-tools[cli]" && pipx ensurepath',
+            'uv tool install "parallel-web-tools[cli]"',
+            "npm install -g parallel-web-cli",
+            "npx skills add parallel-web/parallel-agent-skills --all --global",
+            "parallel-cli login --device",
+            "parallel-cli auth --json",
+            "--json",
+            "PARALLEL_API_KEY",
+        ]:
+            with self.subTest(required=required):
+                self.assertIn(required, skill)
+
+    def test_openlegi_docs_follow_official_install_and_health_check(self) -> None:
+        connectors = (LEGAL_FR / "CONNECTORS.md").read_text(encoding="utf-8")
+        skill = (LEGAL_FR / "skills" / "openlegi-recherche" / "SKILL.md").read_text(encoding="utf-8")
+        checker = (ROOT / "scripts" / "check_legal_fr_connectors.py").read_text(encoding="utf-8")
+        combined = connectors + "\n" + skill + "\n" + checker
+        for required in [
+            "https://www.openlegi.fr/documentation/",
+            "https://mcp.openlegi.fr/health",
+            "https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}",
+            "mcp-remote@latest",
+            "OPENLEGI_TOKEN",
+            "text/event-stream",
+            "Authorization: Bearer",
+            "--online",
+        ]:
+            with self.subTest(required=required):
+                self.assertIn(required, combined)
 
     def test_parallel_task_api_wrapper_and_checker_exist(self) -> None:
         wrapper = ROOT / "scripts" / "legal_fr_parallel_task.py"

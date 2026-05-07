@@ -5,19 +5,26 @@ from __future__ import annotations
 
 import json
 import os
+import argparse
 import sys
 from pathlib import Path
 from typing import Any
+from urllib.error import HTTPError, URLError
+from urllib.request import urlopen
 
 
 ROOT = Path(__file__).resolve().parents[1]
 MCP_CONFIG = ROOT / "plugins" / "vertical-plugins" / "legal-fr" / ".mcp.json"
 EXA_ENDPOINT = "https://mcp.exa.ai/mcp"
+OPENLEGI_DOCS_URL = "https://www.openlegi.fr/documentation/"
+OPENLEGI_HEALTH_URL = "https://mcp.openlegi.fr/health"
+OPENLEGI_MCP_ENDPOINT = "https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}"
 OPENLEGI_TOKEN_REF = "${OPENLEGI_TOKEN}"
 OPENLEGI_TOKEN_WARN = (
     "WARN: OPENLEGI_TOKEN is not set; runtime OpenLegi calls will fail until configured."
 )
 OK_MESSAGE = "Legal-FR connector config OK"
+OPENLEGI_HEALTH_OK = "OpenLegi health OK"
 
 
 def error(message: str) -> str:
@@ -82,10 +89,45 @@ def validate(config: dict[str, Any]) -> list[str]:
     return errors
 
 
-def main() -> int:
+def validate_openlegi_health() -> list[str]:
+    try:
+        with urlopen(OPENLEGI_HEALTH_URL, timeout=20) as response:
+            raw = response.read().decode("utf-8")
+    except (HTTPError, URLError, TimeoutError) as exc:
+        return [error(f"OpenLegi health check failed: {exc}")]
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        return [error(f"OpenLegi health response is not JSON: {exc}")]
+
+    services = payload.get("services")
+    if payload.get("status") != "ok":
+        return [error(f"OpenLegi health status is not ok: {payload.get('status')}")]
+    if not isinstance(services, dict) or services.get("legifrance") is not True:
+        return [error("OpenLegi health does not report legifrance=true")]
+    return []
+
+
+def parse_args(argv: list[str]) -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="Validate Legal-FR MCP connector config. Offline by default; use --online for OpenLegi health."
+    )
+    parser.add_argument(
+        "--online",
+        action="store_true",
+        help=f"Call {OPENLEGI_HEALTH_URL}; does not use OPENLEGI_TOKEN and should not consume MCP quota.",
+    )
+    return parser.parse_args(argv)
+
+
+def main(argv: list[str] | None = None) -> int:
+    args = parse_args(sys.argv[1:] if argv is None else argv)
     config, errors = load_config(MCP_CONFIG)
     if config is not None:
         errors.extend(validate(config))
+    if args.online:
+        errors.extend(validate_openlegi_health())
 
     if errors:
         for message in errors:
@@ -94,6 +136,8 @@ def main() -> int:
 
     if "OPENLEGI_TOKEN" not in os.environ:
         print(OPENLEGI_TOKEN_WARN)
+    if args.online:
+        print(OPENLEGI_HEALTH_OK)
     print(OK_MESSAGE)
     return 0
 

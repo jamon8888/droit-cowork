@@ -17,6 +17,14 @@ OK_MESSAGE = "Legal-FR Parallel CLI config OK"
 TOKEN_WARN = (
     "WARN: PARALLEL_API_KEY is not set; parallel-cli must be authenticated by local login or device flow."
 )
+INSTALL_GUIDANCE = [
+    'Install recommended for agent skills: pipx install "parallel-web-tools[cli]" && pipx ensurepath',
+    'Alternative with uv: uv tool install "parallel-web-tools[cli]"',
+    "Alternative with npm: npm install -g parallel-web-cli",
+    "Authenticate headless/Cowork: parallel-cli login --device",
+    "Authenticate with environment: set PARALLEL_API_KEY in the user environment, never in repo files",
+    "Verify auth: parallel-cli auth --json",
+]
 
 
 def error(message: str) -> str:
@@ -64,6 +72,10 @@ def main() -> int:
     if errors:
         for message in errors:
             print(message)
+        if any("parallel-cli is not installed" in message for message in errors):
+            print("\nInstallation options:")
+            for guidance in INSTALL_GUIDANCE:
+                print(f"- {guidance}")
         return 1
 
     if "PARALLEL_API_KEY" not in os.environ:

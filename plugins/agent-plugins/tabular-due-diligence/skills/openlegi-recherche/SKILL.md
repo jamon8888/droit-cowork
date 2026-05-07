@@ -38,6 +38,45 @@ Recherche de codes, jurisprudence, conventions collectives et textes via OpenLeg
 - Marquer `A VERIFIER` et `source_status: unverified` si la source officielle n'est pas disponible dans le dossier ou via connecteur.
 - Ne pas transformer une recherche web ou une source secondaire en conclusion juridique sans validation humaine.
 
+## Installation et validation OpenLegi MCP
+
+Source officielle:
+
+- https://www.openlegi.fr/documentation/
+
+Configuration Claude Desktop/Cowork recommandee via MCP remote:
+
+```json
+{
+  "mcpServers": {
+    "openlegi": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}"
+      ]
+    }
+  }
+}
+```
+
+Verifier la disponibilite sans consommer de quota MCP:
+
+```bash
+curl https://mcp.openlegi.fr/health
+python scripts/check_legal_fr_connectors.py --online
+```
+
+Le health check doit retourner `status: ok` et `services.legifrance: true`.
+
+Authentification et protocole:
+
+- Utiliser `OPENLEGI_TOKEN` comme variable d'environnement utilisateur, jamais comme secret hardcode.
+- La documentation OpenLegi accepte aussi le header `Authorization: Bearer <token>` pour les clients MCP avances.
+- Le transport MCP utilise SSE; les clients HTTP bas niveau doivent envoyer `Accept: application/json, text/event-stream`.
+- Ne pas traiter `https://mcp.openlegi.fr/legifrance/mcp` comme une API REST JSON simple; utiliser Claude Desktop, `mcp-remote@latest`, un SDK MCP ou un parser SSE.
+
 ## Output Contract
 
 - Markdown pour les rapports et tableaux finaux.

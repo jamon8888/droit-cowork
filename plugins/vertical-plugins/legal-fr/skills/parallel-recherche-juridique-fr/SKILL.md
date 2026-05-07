@@ -38,6 +38,48 @@ Recherche juridique francaise avancee via Parallel CLI: search, extract, researc
 - Marquer `A VERIFIER` et `source_status: unverified` si la source officielle n'est pas disponible dans le dossier ou via connecteur.
 - Ne pas transformer une recherche web ou une source secondaire en conclusion juridique sans validation humaine.
 
+## Installation Parallel CLI et Agent Skills
+
+Sources officielles:
+
+- https://docs.parallel.ai/integrations/cli
+- https://docs.parallel.ai/integrations/agent-skills
+
+Installation recommandee pour Cowork/Agent Skills:
+
+```bash
+pipx install "parallel-web-tools[cli]" && pipx ensurepath
+```
+
+Alternatives supportees:
+
+```bash
+uv tool install "parallel-web-tools[cli]"
+npm install -g parallel-web-cli
+```
+
+Installer les Parallel Agent Skills lorsque le runtime local les supporte:
+
+```bash
+npx skills add parallel-web/parallel-agent-skills --all --global
+```
+
+Authentification:
+
+```bash
+parallel-cli login --device
+parallel-cli auth --json
+```
+
+`PARALLEL_API_KEY` peut etre defini dans l'environnement utilisateur pour les executions non interactives. Ne jamais ecrire `PARALLEL_API_KEY` avec une valeur dans le repo, dans un playbook ou dans une sortie.
+
+Regles d'usage Legal-FR:
+
+- Utiliser `parallel-cli` seulement pour recherche web publique, extraction, enrichissement, veille ou recherche longue.
+- Ajouter `--json` a toutes les commandes executees par un agent ou un script.
+- Conserver OpenLegi comme source prioritaire pour le droit positif francais.
+- Classer les resultats Parallel comme `secondary` ou `unverified` tant qu'une source officielle n'a pas confirme le point de droit.
+
 ## Output Contract
 
 - Markdown pour les rapports et tableaux finaux.
