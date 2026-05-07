@@ -45,3 +45,5 @@ coverage/
 TASKS.md
 MEMORY.md
 .claude/worktrees/
+.claude/skills/
+.gitnexus
