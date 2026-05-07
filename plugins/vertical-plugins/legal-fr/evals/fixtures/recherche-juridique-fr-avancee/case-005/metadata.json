@@ -1,0 +1,10 @@
+{
+  "workflow": "recherche-juridique-fr-avancee",
+  "case_id": "case-005",
+  "case_type": "source_not_found",
+  "expected_risk": "medium",
+  "expected_source_status": "not_found",
+  "expected_confidence_band": "low",
+  "requires_human_validation": true,
+  "expected_behavior": "Marquer la source comme introuvable et interdire toute conclusion finale."
+}

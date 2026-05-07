@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR Parallel Task input",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "workflow": {
+      "const": "recherche-juridique-fr-avancee"
+    },
+    "question": {
+      "type": "string",
+      "minLength": 1
+    },
+    "legal_domain": {
+      "type": "string"
+    },
+    "official_source_required": {
+      "type": "boolean"
+    },
+    "processor": {
+      "type": "string",
+      "enum": [
+        "lite",
+        "base",
+        "core",
+        "pro",
+        "ultra"
+      ]
+    }
+  },
+  "required": [
+    "workflow",
+    "question",
+    "official_source_required"
+  ]
+}

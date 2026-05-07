@@ -1,0 +1,10 @@
+{
+  "workflow": "recherche-juridique-fr-avancee",
+  "case_id": "case-002",
+  "case_type": "blocking_red_flag",
+  "expected_risk": "high",
+  "expected_source_status": "official",
+  "expected_confidence_band": "high",
+  "requires_human_validation": true,
+  "expected_behavior": "Identifier un red flag bloquant et exiger revue avocat avant usage externe."
+}

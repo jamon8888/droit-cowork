@@ -36,3 +36,19 @@ Legal-FR connector config OK
 ## Parallel Agent Skills
 
 Installation recommandee: `npx skills add parallel-web/parallel-agent-skills --all --global`.
+
+## Parallel CLI
+
+Parallel CLI is the local/Cowork execution layer for advanced French legal research.
+
+Verification:
+
+```bash
+python scripts/check_legal_fr_parallel_cli.py
+```
+
+Expected when the CLI is installed and local auth or `PARALLEL_API_KEY` is available:
+
+```text
+Legal-FR Parallel CLI config OK
+```

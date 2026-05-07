@@ -25,6 +25,17 @@ Every external deliverable produced from this vertical is a draft for profession
 | `red-flags-bail` | Identify red flags in commercial leases, including lease status, Pinel-law points, non-standard clauses, renewal scenarios, and real-estate tax issues. |
 | `note-information-amf` | Draft and check AMF-oriented disclosure sections, including risk factors, governance, ESG, KPIs, and regulatory citations. |
 | `tabular-due-diligence` | Run tabular due diligence over transaction corpora, extract structured terms, score findings, and consolidate executive reports. |
+| `recherche-juridique-fr-avancee` | Research French legal questions with OpenLegi-first source discipline, Parallel CLI deep research, source audit, veille, and Task API second-layer scaffolding. |
+
+## Parallel Task API Layer
+
+Parallel CLI is the default local/Cowork execution path for advanced French legal research. Parallel Task API is the deuxieme couche for backend production, long-running research, batch enrichment, polling, webhooks, and schema-backed outputs.
+
+Local scaffold verification:
+
+```bash
+python scripts/check_legal_fr_parallel_task_api.py
+```
 
 ## Verification
 
@@ -42,10 +53,10 @@ The connector check warns if `OPENLEGI_TOKEN` is not configured locally; that wa
 ## Operating Notes
 
 - Extract and validate structured JSON before writing any Markdown report. Markdown is a presentation layer over the schema-backed extraction, not the source of truth.
-- Use official legal sources for critical legal conclusions. For French positive law, query OpenLegi first; use Exa for broader research, secondary context, comparative checks, or source discovery.
+- Use official legal sources for critical legal conclusions. For French positive law, query OpenLegi first; use Exa and Parallel CLI for broader public research, secondary context, comparative checks, enrichment, or source discovery.
 - Mark uncertain current-law points as `A VERIFIER` and do not convert uncertainty into a firm conclusion.
 - Every external report must display `DRAFT - Validation professionnelle requise`.
 - Maintain an audit trail for material findings: source excerpt, source status, confidence, and reviewer note.
 - Apply the Legal-FR quality gates before final output, especially source status, confidence bands, schema completeness, draft notice, and human validation metadata.
 - Human validation by a qualified legal professional is mandatory before any client, regulator, counterparty, or other external use.
-- Only OpenLegi and Exa are required connectors for now; do not add extra source-system requirements unless the workflow owner approves them.
+- Only OpenLegi and Exa are required MCP connectors for now; Parallel CLI and Parallel Task API are execution layers for advanced research, not replacements for source validation.

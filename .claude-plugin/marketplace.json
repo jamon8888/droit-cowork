@@ -148,6 +148,11 @@
       "name": "tabular-due-diligence",
       "source": "./plugins/agent-plugins/tabular-due-diligence",
       "description": "Due diligence a grande echelle par extraction parallele, scoring et consolidation tabulaire."
+    },
+    {
+      "name": "recherche-juridique-fr-avancee",
+      "source": "./plugins/agent-plugins/recherche-juridique-fr-avancee",
+      "description": "Recherche juridique francaise avancee avec OpenLegi, Parallel CLI, audit des sources et couche Task API."
     }
   ]
 }

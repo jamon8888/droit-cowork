@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR recherche-juridique-fr-avancee extraction",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "workflow": {
+      "const": "recherche-juridique-fr-avancee"
+    },
+    "document_intake": {
+      "$ref": "../../common/document-intake.schema.json"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "../../common/finding.schema.json"
+      }
+    },
+    "audit_trail": {
+      "type": "array",
+      "items": {
+        "$ref": "../../common/audit-trail.schema.json"
+      }
+    },
+    "human_validation": {
+      "$ref": "../../common/human-validation.schema.json"
+    },
+    "draft_notice": {
+      "const": "DRAFT - Validation professionnelle requise"
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "documents_seen": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "documents_processed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "documents_unreadable": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "documents_seen",
+        "documents_processed",
+        "documents_unreadable"
+      ]
+    }
+  },
+  "required": [
+    "workflow",
+    "document_intake",
+    "findings",
+    "audit_trail",
+    "human_validation",
+    "draft_notice",
+    "coverage"
+  ]
+}
