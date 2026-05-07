@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR finding",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "finding_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "document_reference": {
+      "type": "string"
+    },
+    "source_citation": {
+      "$ref": "source-citation.schema.json"
+    },
+    "risk_score": {
+      "$ref": "risk-score.schema.json"
+    },
+    "audit_trail": {
+      "$ref": "audit-trail.schema.json"
+    }
+  },
+  "required": [
+    "finding_id",
+    "title",
+    "description",
+    "document_reference",
+    "source_citation",
+    "risk_score",
+    "audit_trail"
+  ]
+}

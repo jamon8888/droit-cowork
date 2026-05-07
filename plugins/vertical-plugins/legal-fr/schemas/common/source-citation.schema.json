@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR source citation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "source_status": {
+      "type": "string",
+      "enum": [
+        "official",
+        "secondary",
+        "web",
+        "unverified",
+        "not_found"
+      ]
+    },
+    "citation": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string"
+    },
+    "checked_with": {
+      "type": "string",
+      "enum": [
+        "openlegi",
+        "exa",
+        "manual",
+        "none"
+      ]
+    },
+    "verification_note": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "source_status",
+    "citation",
+    "url",
+    "checked_with",
+    "verification_note"
+  ]
+}

@@ -407,6 +407,89 @@ def common_schemas() -> dict[str, dict]:
     }
 
 
+def workflow_schema(workflow: str, schema_kind: str) -> dict:
+    return object_schema(
+        f"Legal-FR {workflow} {schema_kind}",
+        {
+            "workflow": {"const": workflow},
+            "document_intake": ref("document-intake"),
+            "findings": {
+                "type": "array",
+                "items": ref("finding"),
+            },
+            "audit_trail": {
+                "type": "array",
+                "items": ref("audit-trail"),
+            },
+            "human_validation": ref("human-validation"),
+            "draft_notice": {"const": "DRAFT - Validation professionnelle requise"},
+            "coverage": {
+                "type": "object",
+                "additionalProperties": False,
+                "properties": {
+                    "schema_kind": {"const": schema_kind},
+                    "documents_reviewed": {"type": "integer", "minimum": 0},
+                    "documents_total": {"type": "integer", "minimum": 0},
+                    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                    "source_status": string_enum(["official", "secondary", "web", "unverified", "not_found", "mixed"]),
+                },
+                "required": ["schema_kind", "documents_reviewed", "documents_total", "confidence", "source_status"],
+            },
+        },
+        ["workflow", "document_intake", "findings", "audit_trail", "human_validation", "draft_notice", "coverage"],
+    )
+
+
+def audit_readme() -> str:
+    return """# Audit Legal-FR
+
+Every production-grade Legal-FR workflow emits an `audit_trail` record for each material finding.
+
+Required audit fields:
+- `DRAFT - Validation professionnelle requise`
+- `validated_by_human`
+- `confidence`
+- `source_status`
+- `audit_trail`
+
+The audit trail links extracted text, legal sources, reviewer identity, confidence scoring and human validation status. Outputs remain drafts until `validated_by_human` is true.
+"""
+
+
+def quality_gates_readme() -> str:
+    return """# Quality Gates Legal-FR
+
+Legal-FR quality gates block final delivery when source verification, confidence scoring or professional validation is incomplete.
+
+Required quality signals:
+- `DRAFT - Validation professionnelle requise`
+- `validated_by_human`
+- `confidence`
+- `source_status`
+- `audit_trail`
+
+Quality gates must preserve the draft notice, review `source_status`, inspect every `confidence` value and require human validation before any external reliance.
+"""
+
+
+def production_grade_files() -> None:
+    for name, schema in common_schemas().items():
+        write(
+            VERTICAL / "schemas" / "common" / f"{name}.schema.json",
+            json.dumps(schema, indent=2, ensure_ascii=False) + "\n",
+        )
+
+    for workflow in WORKFLOWS:
+        for schema_kind in WORKFLOW_SCHEMA_NAMES:
+            write(
+                VERTICAL / "schemas" / "workflows" / workflow / f"{schema_kind}.schema.json",
+                json.dumps(workflow_schema(workflow, schema_kind), indent=2, ensure_ascii=False) + "\n",
+            )
+
+    write(VERTICAL / "audit" / "README.md", audit_readme())
+    write(VERTICAL / "quality-gates" / "README.md", quality_gates_readme())
+
+
 def vertical_docs() -> None:
     write(
         VERTICAL / ".claude-plugin" / "plugin.json",
@@ -493,9 +576,10 @@ def marketplace() -> None:
 
 def main() -> None:
     vertical_docs()
+    production_grade_files()
     agent_plugins()
     marketplace()
-    print("generated legal-fr vertical and 8 Legal-FR agent plugins")
+    print("generated legal-fr vertical, production-grade layer and 8 Legal-FR agent plugins")
 
 
 if __name__ == "__main__":

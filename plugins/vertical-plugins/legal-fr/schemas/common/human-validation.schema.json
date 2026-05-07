@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR human validation",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "validated_by_human": {
+      "type": "boolean"
+    },
+    "validator_role": {
+      "type": "string"
+    },
+    "validation_required": {
+      "type": "boolean"
+    },
+    "validation_reason": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "validated_by_human",
+    "validator_role",
+    "validation_required",
+    "validation_reason"
+  ]
+}

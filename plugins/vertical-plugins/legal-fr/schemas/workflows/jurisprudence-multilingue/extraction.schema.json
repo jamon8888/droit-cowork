@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR jurisprudence-multilingue extraction",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "workflow": {
+      "const": "jurisprudence-multilingue"
+    },
+    "document_intake": {
+      "$ref": "../../common/document-intake.schema.json"
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "../../common/finding.schema.json"
+      }
+    },
+    "audit_trail": {
+      "type": "array",
+      "items": {
+        "$ref": "../../common/audit-trail.schema.json"
+      }
+    },
+    "human_validation": {
+      "$ref": "../../common/human-validation.schema.json"
+    },
+    "draft_notice": {
+      "const": "DRAFT - Validation professionnelle requise"
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "schema_kind": {
+          "const": "extraction"
+        },
+        "documents_reviewed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "documents_total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "source_status": {
+          "type": "string",
+          "enum": [
+            "official",
+            "secondary",
+            "web",
+            "unverified",
+            "not_found",
+            "mixed"
+          ]
+        }
+      },
+      "required": [
+        "schema_kind",
+        "documents_reviewed",
+        "documents_total",
+        "confidence",
+        "source_status"
+      ]
+    }
+  },
+  "required": [
+    "workflow",
+    "document_intake",
+    "findings",
+    "audit_trail",
+    "human_validation",
+    "draft_notice",
+    "coverage"
+  ]
+}
