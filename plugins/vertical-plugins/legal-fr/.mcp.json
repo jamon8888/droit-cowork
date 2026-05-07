@@ -11,6 +11,18 @@
         "mcp-remote@latest",
         "https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}"
       ]
+    },
+    "parallel-search": {
+      "type": "http",
+      "url": "https://search.parallel.ai/mcp"
+    },
+    "parallel-task": {
+      "type": "http",
+      "url": "https://task-mcp.parallel.ai/mcp",
+      "headers": {
+        "Authorization": "Bearer ${PARALLEL_API_KEY}"
+      },
+      "optional": true
     }
   }
 }

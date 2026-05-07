@@ -19,9 +19,15 @@ EXA_ENDPOINT = "https://mcp.exa.ai/mcp"
 OPENLEGI_DOCS_URL = "https://www.openlegi.fr/documentation/"
 OPENLEGI_HEALTH_URL = "https://mcp.openlegi.fr/health"
 OPENLEGI_MCP_ENDPOINT = "https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}"
+PARALLEL_SEARCH_ENDPOINT = "https://search.parallel.ai/mcp"
+PARALLEL_TASK_ENDPOINT = "https://task-mcp.parallel.ai/mcp"
 OPENLEGI_TOKEN_REF = "${OPENLEGI_TOKEN}"
+PARALLEL_API_KEY_REF = "${PARALLEL_API_KEY}"
 OPENLEGI_TOKEN_WARN = (
     "WARN: OPENLEGI_TOKEN is not set; runtime OpenLegi calls will fail until configured."
+)
+PARALLEL_TOKEN_WARN = (
+    "WARN: PARALLEL_API_KEY is not set; Parallel Task MCP will require OAuth or env auth before runtime use."
 )
 OK_MESSAGE = "Legal-FR connector config OK"
 OPENLEGI_HEALTH_OK = "OpenLegi health OK"
@@ -57,14 +63,18 @@ def server_named(servers: dict[str, Any], name: str) -> dict[str, Any] | None:
     return None
 
 
-def contains_token_ref(value: Any) -> bool:
+def contains_ref(value: Any, ref: str) -> bool:
     if isinstance(value, str):
-        return OPENLEGI_TOKEN_REF in value
+        return ref in value
     if isinstance(value, list):
-        return any(contains_token_ref(item) for item in value)
+        return any(contains_ref(item, ref) for item in value)
     if isinstance(value, dict):
-        return any(contains_token_ref(item) for item in value.values())
+        return any(contains_ref(item, ref) for item in value.values())
     return False
+
+
+def contains_token_ref(value: Any) -> bool:
+    return contains_ref(value, OPENLEGI_TOKEN_REF)
 
 
 def validate(config: dict[str, Any]) -> list[str]:
@@ -85,6 +95,30 @@ def validate(config: dict[str, Any]) -> list[str]:
         errors.append(error("OpenLegi MCP entry is missing"))
     elif not contains_token_ref(openlegi):
         errors.append(error(f"OpenLegi MCP config must contain {OPENLEGI_TOKEN_REF}"))
+
+    parallel_search = server_named(servers, "parallel-search")
+    if parallel_search is None:
+        errors.append(error("Parallel Search MCP entry is missing"))
+    else:
+        if parallel_search.get("type") != "http":
+            errors.append(error("Parallel Search MCP type must be http"))
+        endpoint = parallel_search.get("url", parallel_search.get("endpoint"))
+        if endpoint != PARALLEL_SEARCH_ENDPOINT:
+            errors.append(error(f"Parallel Search MCP endpoint must be exactly {PARALLEL_SEARCH_ENDPOINT}"))
+
+    parallel_task = server_named(servers, "parallel-task")
+    if parallel_task is None:
+        errors.append(error("Parallel Task MCP entry is missing"))
+    else:
+        if parallel_task.get("type") != "http":
+            errors.append(error("Parallel Task MCP type must be http"))
+        endpoint = parallel_task.get("url", parallel_task.get("endpoint"))
+        if endpoint != PARALLEL_TASK_ENDPOINT:
+            errors.append(error(f"Parallel Task MCP endpoint must be exactly {PARALLEL_TASK_ENDPOINT}"))
+        if parallel_task.get("optional") is not True:
+            errors.append(error("Parallel Task MCP must be marked optional"))
+        if not contains_ref(parallel_task, PARALLEL_API_KEY_REF):
+            errors.append(error(f"Parallel Task MCP config must contain {PARALLEL_API_KEY_REF}"))
 
     return errors
 
@@ -136,6 +170,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if "OPENLEGI_TOKEN" not in os.environ:
         print(OPENLEGI_TOKEN_WARN)
+    if "PARALLEL_API_KEY" not in os.environ:
+        print(PARALLEL_TOKEN_WARN)
     if args.online:
         print(OPENLEGI_HEALTH_OK)
     print(OK_MESSAGE)

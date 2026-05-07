@@ -65,6 +65,26 @@ Legal-FR connector config OK
 
 Installation recommandee: `npx skills add parallel-web/parallel-agent-skills --all --global`.
 
+## Parallel Search MCP
+
+Documentation officielle: https://docs.parallel.ai/integrations/mcp/quickstart.
+
+Endpoint: `https://search.parallel.ai/mcp`.
+
+Outils attendus: `web_search`, `web_fetch`.
+
+Usage Legal-FR: recherche web rapide et fetch URL; les resultats restent `secondary` ou `unverified` tant qu'OpenLegi ou une source officielle ne confirme pas le point de droit.
+
+## Parallel Task MCP
+
+Endpoint: `https://task-mcp.parallel.ai/mcp`.
+
+Outils attendus: `createDeepResearch`, `createTaskGroup`, `getStatus`, `getResultMarkdown`.
+
+Authentification: OAuth ou `PARALLEL_API_KEY`; ne jamais hardcoder la cle.
+
+Usage Legal-FR: recherche longue interactive, task groups et enrichissement; optionnel et distinct du CLI et de la Task API backend.
+
 ## Parallel CLI
 
 Parallel CLI is the local/Cowork execution layer for advanced French legal research.

@@ -376,6 +376,48 @@ class LegalFrProductionGradeTest(unittest.TestCase):
             with self.subTest(required=required):
                 self.assertIn(required, skill)
 
+    def test_parallel_mcp_connectors_are_documented_and_optional(self) -> None:
+        config = load_json(LEGAL_FR / ".mcp.json")
+        servers = config["mcpServers"]
+        self.assertIn("parallel-search", servers)
+        self.assertIn("parallel-task", servers)
+        self.assertEqual(servers["parallel-search"]["url"], "https://search.parallel.ai/mcp")
+        self.assertEqual(servers["parallel-search"]["type"], "http")
+        self.assertEqual(servers["parallel-task"]["url"], "https://task-mcp.parallel.ai/mcp")
+        self.assertEqual(servers["parallel-task"]["type"], "http")
+        self.assertTrue(servers["parallel-task"]["optional"])
+        self.assertIn("${PARALLEL_API_KEY}", json.dumps(servers["parallel-task"]))
+
+        connectors = (LEGAL_FR / "CONNECTORS.md").read_text(encoding="utf-8")
+        skill = (LEGAL_FR / "skills" / "parallel-recherche-juridique-fr" / "SKILL.md").read_text(
+            encoding="utf-8"
+        )
+        combined = connectors + "\n" + skill
+        for required in [
+            "https://docs.parallel.ai/integrations/mcp/quickstart",
+            "https://search.parallel.ai/mcp",
+            "https://task-mcp.parallel.ai/mcp",
+            "web_search",
+            "web_fetch",
+            "createDeepResearch",
+            "createTaskGroup",
+            "getStatus",
+            "getResultMarkdown",
+            "Parallel Search MCP",
+            "Parallel Task MCP",
+        ]:
+            with self.subTest(required=required):
+                self.assertIn(required, combined)
+
+    def test_connector_checker_knows_parallel_mcp_urls_without_secret_values(self) -> None:
+        checker = (ROOT / "scripts" / "check_legal_fr_connectors.py").read_text(encoding="utf-8")
+        self.assertIn("PARALLEL_SEARCH_ENDPOINT", checker)
+        self.assertIn("PARALLEL_TASK_ENDPOINT", checker)
+        self.assertIn("https://search.parallel.ai/mcp", checker)
+        self.assertIn("https://task-mcp.parallel.ai/mcp", checker)
+        self.assertIn("PARALLEL_API_KEY", checker)
+        self.assertNotIn("PARALLEL_API_KEY=", checker)
+
     def test_openlegi_docs_follow_official_install_and_health_check(self) -> None:
         connectors = (LEGAL_FR / "CONNECTORS.md").read_text(encoding="utf-8")
         skill = (LEGAL_FR / "skills" / "openlegi-recherche" / "SKILL.md").read_text(encoding="utf-8")
