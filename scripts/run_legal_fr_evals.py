@@ -23,50 +23,67 @@ def is_confidence(value: Any) -> bool:
     return isinstance(value, (int, float)) and not isinstance(value, bool) and 0 <= value <= 1
 
 
-def validate_expected(path: Path) -> list[str]:
+def score_expected_output(expected: Any) -> list[str]:
     failures: list[str] = []
 
+    if not isinstance(expected, dict):
+        return ["expected root must be an object"]
+
+    if expected.get("draft_notice") != DRAFT_NOTICE:
+        failures.append(f"draft_notice must be {DRAFT_NOTICE!r}")
+
+    human_validation = expected.get("human_validation")
+    if not isinstance(human_validation, dict):
+        failures.append("human_validation missing or not an object")
+    elif human_validation.get("validated_by_human") is not False:
+        failures.append("human_validation.validated_by_human must be False")
+
+    if not isinstance(expected.get("document_intake"), dict):
+        failures.append("document_intake missing or not an object")
+    if not isinstance(expected.get("coverage"), dict):
+        failures.append("coverage missing or not an object")
+
+    findings = expected.get("findings")
+    if not isinstance(findings, list) or not findings:
+        failures.append("missing findings")
+    else:
+        for index, finding in enumerate(findings, start=1):
+            finding_prefix = f"findings[{index}]"
+            if not isinstance(finding, dict):
+                failures.append(f"{finding_prefix} must be an object")
+                continue
+
+            source_citation = finding.get("source_citation")
+            if not isinstance(source_citation, dict):
+                failures.append(f"{finding_prefix}.source_citation must be an object")
+            elif source_citation.get("source_status") not in ALLOWED_SOURCE_STATUSES:
+                failures.append(
+                    f"{finding_prefix}.source_citation.source_status must be one of "
+                    f"{sorted(ALLOWED_SOURCE_STATUSES)}"
+                )
+
+            risk_score = finding.get("risk_score")
+            if not isinstance(risk_score, dict):
+                failures.append(f"{finding_prefix}.risk_score must be an object")
+            elif not is_confidence(risk_score.get("confidence")):
+                failures.append(f"{finding_prefix}.risk_score.confidence must be a number from 0 to 1")
+
+    if not isinstance(expected.get("audit_trail"), list) or not expected.get("audit_trail"):
+        failures.append("missing audit trail")
+
+    return failures
+
+
+def validate_expected(path: Path) -> list[str]:
     try:
         expected = json.loads(path.read_text(encoding="utf-8"))
     except json.JSONDecodeError as exc:
         return [f"{rel(path)}: invalid JSON: {exc}"]
 
     prefix = rel(path)
-    if expected.get("draft_notice") != DRAFT_NOTICE:
-        failures.append(f"{prefix}: draft_notice must be {DRAFT_NOTICE!r}")
-    if not expected.get("findings"):
-        failures.append(f"{prefix}: missing findings")
-    if not expected.get("audit_trail"):
-        failures.append(f"{prefix}: missing audit trail")
-    if expected.get("human_validation", {}).get("validated_by_human") is not False:
-        failures.append(f"{prefix}: human_validation.validated_by_human must be False")
-    if "document_intake" not in expected:
-        failures.append(f"{prefix}: document_intake is missing")
-    if "coverage" not in expected:
-        failures.append(f"{prefix}: coverage is missing")
-
-    findings = expected.get("findings")
-    if not isinstance(findings, list):
-        failures.append(f"{prefix}: findings must be a list")
-        return failures
-
-    for index, finding in enumerate(findings, start=1):
-        finding_prefix = f"{prefix}: findings[{index}]"
-        if not isinstance(finding, dict):
-            failures.append(f"{finding_prefix} must be an object")
-            continue
-
-        source_status = finding.get("source_citation", {}).get("source_status")
-        if source_status not in ALLOWED_SOURCE_STATUSES:
-            failures.append(
-                f"{finding_prefix}.source_citation.source_status must be one of "
-                f"{sorted(ALLOWED_SOURCE_STATUSES)}"
-            )
-
-        confidence = finding.get("risk_score", {}).get("confidence")
-        if not is_confidence(confidence):
-            failures.append(f"{finding_prefix}.risk_score.confidence must be a number from 0 to 1")
-
+    failures = score_expected_output(expected)
+    if failures:
+        return [f"{prefix}: {failure}" for failure in failures]
     return failures
 
 
