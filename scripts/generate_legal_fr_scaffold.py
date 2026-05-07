@@ -54,6 +54,10 @@ SKILLS = {
     "droit-cession-fr": "Droit francais des cessions, GAP, conditions suspensives et closing.",
     "consolidation-rapport": "Consolidation multi-sources et rapport DD.",
     "red-flags-juridiques": "Catalogue de red flags juridiques par domaine.",
+    "parallel-recherche-juridique-fr": "Recherche juridique francaise avancee via Parallel CLI: search, extract, research, enrich, findall et monitor.",
+    "source-audit-juridique-fr": "Classement des sources juridiques FR, source officielle, institutionnelle, doctrine, presse et confiance.",
+    "veille-juridique-fr": "Veille juridique francaise sur autorites, juridictions, textes, doctrine publique et signaux reglementaires.",
+    "parallel-task-api-juridique-fr": "Deuxieme couche Parallel Task API pour workflows juridiques FR batchables, schemas et run_id.",
 }
 
 
@@ -92,6 +96,21 @@ SKILL_RED_FLAGS = {
         "coverage incomplete",
         "JSON batch invalide",
         "score sans audit trail",
+    ],
+    "parallel-recherche-juridique-fr": [
+        "source officielle absente",
+        "source secondaire presentee comme officielle",
+        "parallel-cli sans sortie JSON",
+    ],
+    "source-audit-juridique-fr": [
+        "citation sans extrait",
+        "source non datee",
+        "confidence elevee sans source officielle",
+    ],
+    "parallel-task-api-juridique-fr": [
+        "run_id absent",
+        "schema non versionne",
+        "donnee client brute envoyee",
     ],
 }
 
@@ -142,6 +161,17 @@ COMMANDS = {
         "consolider": "Consolider des JSON batch en tableau DD.",
         "rapport-executif": "Generer le rapport executif DD.",
         "verifier-sources": "Verifier les sources juridiques et societaires disponibles.",
+    },
+    "recherche": {
+        "chercher": "Rechercher des sources juridiques francaises avec OpenLegi et Parallel CLI.",
+        "extraire-source": "Extraire et auditer une source publique avec Parallel CLI.",
+        "deep-research": "Lancer une recherche juridique francaise approfondie avec Parallel CLI.",
+        "verifier-sources": "Verifier et classer les sources d'une note juridique FR.",
+        "enrichir-dossier": "Enrichir un dossier ou tableau juridique avec sources publiques FR.",
+        "veille": "Preparer ou configurer une veille juridique francaise.",
+        "task-run": "Lancer une recherche juridique FR via la couche Parallel Task API.",
+        "task-status": "Lire le statut d'un run Parallel Task API.",
+        "task-poll": "Recuperer le resultat d'un run Parallel Task API.",
     },
 }
 
@@ -195,6 +225,31 @@ WORKFLOWS = {
         "skills": ["confidentialite-donnees", "quality-gates-juridiques", "tabular-review", "format-json-intermediaire", "lecture-playbook", "scoring-playbook", "tabular-extraction", "droit-cession-fr", "consolidation-rapport", "red-flags-juridiques", "openlegi-recherche", "exa-recherche-juridique", "tableau-consolide", "rapport-executif"],
         "output": "TABLEAU-DD-[YYYY-MM-DD].md",
     },
+    "recherche-juridique-fr-avancee": {
+        "description": "Recherche juridique francaise avancee avec OpenLegi, Parallel CLI, audit des sources et couche Task API.",
+        "workers": [
+            "legal-query-classifier",
+            "official-source-researcher",
+            "parallel-cli-researcher",
+            "source-auditor",
+            "task-api-coordinator",
+            "report-drafter",
+            "legal-qa-reviewer",
+        ],
+        "skills": [
+            "confidentialite-donnees",
+            "quality-gates-juridiques",
+            "openlegi-recherche",
+            "exa-recherche-juridique",
+            "citation-juridique",
+            "rapport-executif",
+            "parallel-recherche-juridique-fr",
+            "source-audit-juridique-fr",
+            "veille-juridique-fr",
+            "parallel-task-api-juridique-fr",
+        ],
+        "output": "RECHERCHE-JURIDIQUE-FR-[sujet]-[YYYY-MM-DD].md",
+    },
 }
 
 
@@ -243,6 +298,10 @@ WORKFLOW_INTAKE_METADATA = {
     "tabular-due-diligence": {
         "detected_type": "data_room_document",
         "legal_domain": "due_diligence",
+    },
+    "recherche-juridique-fr-avancee": {
+        "detected_type": "legal_research_question",
+        "legal_domain": "french_legal_research",
     },
 }
 
@@ -621,6 +680,7 @@ COMMAND_FAMILY_TO_WORKFLOW = {
     "bail": "red-flags-bail",
     "amf": "note-information-amf",
     "tdd": "tabular-due-diligence",
+    "recherche": "recherche-juridique-fr-avancee",
 }
 
 
