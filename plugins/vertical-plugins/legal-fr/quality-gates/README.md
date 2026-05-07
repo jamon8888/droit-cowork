@@ -1,6 +1,6 @@
 # Quality Gates Legal-FR
 
-Legal-FR quality gates block final delivery when source verification, confidence scoring or professional validation is incomplete.
+Legal-FR quality gates are cabinet policy checks applied manually by the `legal-qa-reviewer` and workflow instructions until automated enforcement is added through tests, eval scripts or prompt-level gates.
 
 Required quality signals:
 - `DRAFT - Validation professionnelle requise`
@@ -9,4 +9,4 @@ Required quality signals:
 - `source_status`
 - `audit_trail`
 
-Quality gates must preserve the draft notice, review `source_status`, inspect every `confidence` value and require human validation before any external reliance.
+The manual gate requires reviewers to preserve the draft notice, review `source_status`, inspect every `confidence` value and require human validation before any external reliance.
