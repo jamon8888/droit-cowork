@@ -34,10 +34,10 @@ def validate_expected(path: Path) -> list[str]:
     prefix = rel(path)
     if expected.get("draft_notice") != DRAFT_NOTICE:
         failures.append(f"{prefix}: draft_notice must be {DRAFT_NOTICE!r}")
-    if "findings" not in expected:
-        failures.append(f"{prefix}: findings is missing")
-    if "audit_trail" not in expected:
-        failures.append(f"{prefix}: audit_trail is missing")
+    if not expected.get("findings"):
+        failures.append(f"{prefix}: missing findings")
+    if not expected.get("audit_trail"):
+        failures.append(f"{prefix}: missing audit trail")
     if expected.get("human_validation", {}).get("validated_by_human") is not False:
         failures.append(f"{prefix}: human_validation.validated_by_human must be False")
     if "document_intake" not in expected:
