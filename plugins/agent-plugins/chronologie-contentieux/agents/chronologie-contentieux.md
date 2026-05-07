@@ -23,12 +23,17 @@ Every external-facing output is a draft for professional review and must include
 ## Workers reutilisables
 
 - `intake-classifier`
+- `source-verifier`
+- `schema-extractor`
+- `risk-scorer`
+- `legal-qa-reviewer`
+- `human-validation-gate`
+- `audit-trail`
 - `document-extractor`
 - `deadline-checker`
 - `case-law-researcher`
 - `table-consolidator`
 - `report-drafter`
-- `legal-qa-reviewer`
 
 ## Guardrails
 

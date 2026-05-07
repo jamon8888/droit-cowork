@@ -228,7 +228,24 @@ def ref(schema_name: str) -> dict:
     return {"$ref": f"../../common/{schema_name}.schema.json"}
 
 
+COMMAND_FAMILY_TO_WORKFLOW = {
+    "conformite": "revue-conformite-interne",
+    "fournisseur": "analyse-contrats-fournisseurs",
+    "chrono": "chronologie-contentieux",
+    "jurisprudence": "jurisprudence-multilingue",
+    "travail": "revue-contrats-travail",
+    "bail": "red-flags-bail",
+    "amf": "note-information-amf",
+    "tdd": "tabular-due-diligence",
+}
+
+
+def workflow_for_family(family: str) -> str:
+    return COMMAND_FAMILY_TO_WORKFLOW[family]
+
+
 def command_text(family: str, command: str, description: str) -> str:
+    workflow = workflow_for_family(family)
     return f"""---
 description: {description}
 argument-hint: "[entree] [options]"
@@ -237,13 +254,25 @@ allowed-tools: Read, Write, Glob, Task
 
 # {family}:{command}
 
-## Workflow
+## Cabinet-grade workflow
 
-1. Clarifier le contexte, le profil utilisateur et le livrable attendu.
-2. Charger les skills Legal-FR pertinents depuis le vertical `legal-fr`.
-3. Utiliser les workers decrits dans l'agent orchestrateur lorsque le workflow exige extraction, scoring ou verification des sources.
-4. Produire un fichier Markdown structure avec tableaux lorsque le resultat est destine a la revue.
-5. Marquer toute sortie externe avec `DRAFT - Validation professionnelle requise`.
+Workflow cible: `{workflow}`.
+
+Schemas requis:
+- `plugins/vertical-plugins/legal-fr/schemas/common/document-intake.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/common/source-citation.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/common/risk-score.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/common/finding.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/common/audit-trail.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/common/human-validation.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/workflows/{workflow}/extraction.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/workflows/{workflow}/report.schema.json`
+
+1. Classer l'entree, le domaine juridique, le profil utilisateur et le livrable attendu avant toute analyse.
+2. Extraire les faits et termes dans le schema JSON du workflow, avec `confidence`, `source_status` et champs non trouves.
+3. Construire un audit trail reliant chaque finding au document, a l'extrait source, a la verification juridique et au reviewer.
+4. Appliquer un quality gate: sources citees, scores de risque, coherence du schema, incertitudes visibles et validation humaine requise.
+5. Produire uniquement un livrable marque `DRAFT - Validation professionnelle requise` tant que `validated_by_human` n'est pas vrai.
 """
 
 
@@ -277,7 +306,17 @@ description: {description}
 
 def agent_prompt(slug: str, meta: dict) -> str:
     skills = " | ".join(f"`{skill}`" for skill in meta["skills"])
-    workers = "\n".join(f"- `{worker}`" for worker in meta["workers"])
+    core_workers = [
+        "intake-classifier",
+        "source-verifier",
+        "schema-extractor",
+        "risk-scorer",
+        "legal-qa-reviewer",
+        "human-validation-gate",
+        "audit-trail",
+    ]
+    all_workers = list(dict.fromkeys([*core_workers, *meta["workers"]]))
+    workers = "\n".join(f"- `{worker}`" for worker in all_workers)
     return f"""---
 name: {slug}
 description: {meta["description"]}
