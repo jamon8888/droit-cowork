@@ -17,6 +17,17 @@ EXPECTED_COMMANDS = {
     "bail": ["analyser", "corpus-baux", "simuler-renouvellement"],
     "amf": ["rediger-facteurs-risque", "checker-conformite", "extraire-kpi", "generer-resume"],
     "tdd": ["init", "extraire-corpus", "consolider", "rapport-executif", "verifier-sources"],
+    "recherche": [
+        "chercher",
+        "extraire-source",
+        "deep-research",
+        "verifier-sources",
+        "enrichir-dossier",
+        "veille",
+        "task-run",
+        "task-status",
+        "task-poll",
+    ],
 }
 
 EXPECTED_PLAYBOOKS = [
@@ -76,6 +87,10 @@ EXPECTED_SKILLS = [
     "droit-cession-fr",
     "consolidation-rapport",
     "red-flags-juridiques",
+    "parallel-recherche-juridique-fr",
+    "source-audit-juridique-fr",
+    "veille-juridique-fr",
+    "parallel-task-api-juridique-fr",
 ]
 
 EXPECTED_AGENTS = {
@@ -178,6 +193,18 @@ EXPECTED_AGENTS = {
         "exa-recherche-juridique",
         "tableau-consolide",
         "rapport-executif",
+    ],
+    "recherche-juridique-fr-avancee": [
+        "confidentialite-donnees",
+        "quality-gates-juridiques",
+        "openlegi-recherche",
+        "exa-recherche-juridique",
+        "citation-juridique",
+        "rapport-executif",
+        "parallel-recherche-juridique-fr",
+        "source-audit-juridique-fr",
+        "veille-juridique-fr",
+        "parallel-task-api-juridique-fr",
     ],
 }
 

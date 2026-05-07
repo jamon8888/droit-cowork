@@ -30,7 +30,8 @@
         "employment_agreement",
         "lease_agreement",
         "amf_disclosure_file",
-        "data_room_document"
+        "data_room_document",
+        "legal_research_question"
       ]
     },
     "language": {
@@ -58,7 +59,8 @@
         "litigation",
         "case_law",
         "employment",
-        "real_estate"
+        "real_estate",
+        "french_legal_research"
       ]
     },
     "readability": {

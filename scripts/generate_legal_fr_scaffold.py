@@ -54,6 +54,10 @@ SKILLS = {
     "droit-cession-fr": "Droit francais des cessions, GAP, conditions suspensives et closing.",
     "consolidation-rapport": "Consolidation multi-sources et rapport DD.",
     "red-flags-juridiques": "Catalogue de red flags juridiques par domaine.",
+    "parallel-recherche-juridique-fr": "Recherche juridique francaise avancee via Parallel CLI: search, extract, research, enrich, findall et monitor.",
+    "source-audit-juridique-fr": "Classement des sources juridiques FR, source officielle, institutionnelle, doctrine, presse et confiance.",
+    "veille-juridique-fr": "Veille juridique francaise sur autorites, juridictions, textes, doctrine publique et signaux reglementaires.",
+    "parallel-task-api-juridique-fr": "Deuxieme couche Parallel Task API pour workflows juridiques FR batchables, schemas et run_id.",
 }
 
 
@@ -92,6 +96,21 @@ SKILL_RED_FLAGS = {
         "coverage incomplete",
         "JSON batch invalide",
         "score sans audit trail",
+    ],
+    "parallel-recherche-juridique-fr": [
+        "source officielle absente",
+        "source secondaire presentee comme officielle",
+        "parallel-cli sans sortie JSON",
+    ],
+    "source-audit-juridique-fr": [
+        "citation sans extrait",
+        "source non datee",
+        "confidence elevee sans source officielle",
+    ],
+    "parallel-task-api-juridique-fr": [
+        "run_id absent",
+        "schema non versionne",
+        "donnee client brute envoyee",
     ],
 }
 
@@ -142,6 +161,17 @@ COMMANDS = {
         "consolider": "Consolider des JSON batch en tableau DD.",
         "rapport-executif": "Generer le rapport executif DD.",
         "verifier-sources": "Verifier les sources juridiques et societaires disponibles.",
+    },
+    "recherche": {
+        "chercher": "Rechercher des sources juridiques francaises avec OpenLegi et Parallel CLI.",
+        "extraire-source": "Extraire et auditer une source publique avec Parallel CLI.",
+        "deep-research": "Lancer une recherche juridique francaise approfondie avec Parallel CLI.",
+        "verifier-sources": "Verifier et classer les sources d'une note juridique FR.",
+        "enrichir-dossier": "Enrichir un dossier ou tableau juridique avec sources publiques FR.",
+        "veille": "Preparer ou configurer une veille juridique francaise.",
+        "task-run": "Lancer une recherche juridique FR via la couche Parallel Task API.",
+        "task-status": "Lire le statut d'un run Parallel Task API.",
+        "task-poll": "Recuperer le resultat d'un run Parallel Task API.",
     },
 }
 
@@ -195,6 +225,31 @@ WORKFLOWS = {
         "skills": ["confidentialite-donnees", "quality-gates-juridiques", "tabular-review", "format-json-intermediaire", "lecture-playbook", "scoring-playbook", "tabular-extraction", "droit-cession-fr", "consolidation-rapport", "red-flags-juridiques", "openlegi-recherche", "exa-recherche-juridique", "tableau-consolide", "rapport-executif"],
         "output": "TABLEAU-DD-[YYYY-MM-DD].md",
     },
+    "recherche-juridique-fr-avancee": {
+        "description": "Recherche juridique francaise avancee avec OpenLegi, Parallel CLI, audit des sources et couche Task API.",
+        "workers": [
+            "legal-query-classifier",
+            "official-source-researcher",
+            "parallel-cli-researcher",
+            "source-auditor",
+            "task-api-coordinator",
+            "report-drafter",
+            "legal-qa-reviewer",
+        ],
+        "skills": [
+            "confidentialite-donnees",
+            "quality-gates-juridiques",
+            "openlegi-recherche",
+            "exa-recherche-juridique",
+            "citation-juridique",
+            "rapport-executif",
+            "parallel-recherche-juridique-fr",
+            "source-audit-juridique-fr",
+            "veille-juridique-fr",
+            "parallel-task-api-juridique-fr",
+        ],
+        "output": "RECHERCHE-JURIDIQUE-FR-[sujet]-[YYYY-MM-DD].md",
+    },
 }
 
 
@@ -243,6 +298,10 @@ WORKFLOW_INTAKE_METADATA = {
     "tabular-due-diligence": {
         "detected_type": "data_room_document",
         "legal_domain": "due_diligence",
+    },
+    "recherche-juridique-fr-avancee": {
+        "detected_type": "legal_research_question",
+        "legal_domain": "french_legal_research",
     },
 }
 
@@ -335,6 +394,14 @@ EVAL_CASE_DETAILS = {
         "input_note": "Affirmation juridique plausible mais source officielle introuvable dans le dossier.",
         "expected_behavior": "Marquer la source comme introuvable et interdire toute conclusion finale.",
     },
+}
+
+RESEARCH_FR_EVAL_CASES = {
+    "case-001": "Question simple avec source officielle disponible.",
+    "case-002": "Conclusion critique sans source officielle, doit marquer A VERIFIER.",
+    "case-003": "Doctrine secondaire utile mais non suffisante seule.",
+    "case-004": "Veille AMF avec source institutionnelle.",
+    "case-005": "Deep research async avec run_id et interaction_id.",
 }
 
 
@@ -621,6 +688,7 @@ COMMAND_FAMILY_TO_WORKFLOW = {
     "bail": "red-flags-bail",
     "amf": "note-information-amf",
     "tdd": "tabular-due-diligence",
+    "recherche": "recherche-juridique-fr-avancee",
 }
 
 
@@ -630,6 +698,53 @@ def workflow_for_family(family: str) -> str:
 
 def command_text(family: str, command: str, description: str) -> str:
     workflow = workflow_for_family(family)
+    if family == "recherche":
+        if command.startswith("task-"):
+            invocation = "python scripts/legal_fr_parallel_task.py"
+        else:
+            invocation = "parallel-cli"
+        return f"""---
+name: recherche:{command}
+description: {description}
+argument-hint: "[question|url|fichier] [options]"
+allowed-tools: Read, Write, Glob, Task, Bash(parallel-cli:*), Bash(python:*)
+---
+
+# recherche:{command}
+
+## Regles
+
+- DRAFT - Validation professionnelle requise.
+- Perimetre: droit francais uniquement.
+- OpenLegi avant Parallel pour droit positif francais.
+- Toute commande Parallel CLI doit produire du JSON avec `--json`.
+- Ne jamais afficher `PARALLEL_API_KEY`.
+- Marquer `A VERIFIER` si aucune source officielle ne soutient une conclusion critique.
+
+## Invocation technique
+
+Outil principal: `{invocation}`.
+
+## Schema et audit trail
+
+- Produire une extraction JSON schema-backed avant tout Markdown.
+- Relier chaque conclusion a une source officielle, institutionnelle, doctrinale ou web dans un audit trail.
+- Appliquer un quality gate: source officielle pour conclusion critique, `confidence`, `source_status`, `human_validation`, absence de secret.
+
+## Sortie attendue
+
+```json
+{{
+  "workflow": "recherche-juridique-fr-avancee",
+  "draft_notice": "DRAFT - Validation professionnelle requise",
+  "official_sources": [],
+  "secondary_sources": [],
+  "source_gaps": [],
+  "audit_trail": [],
+  "human_validation": {{"required": true, "status": "pending"}}
+}}
+```
+"""
     return f"""---
 description: {description}
 argument-hint: "[entree] [options]"
@@ -729,6 +844,19 @@ def agent_prompt(slug: str, meta: dict) -> str:
     ]
     all_workers = list(dict.fromkeys([*core_workers, *meta["workers"]]))
     workers = "\n".join(f"- `{worker}`" for worker in all_workers)
+    research_guardrails = "\n"
+    if slug == "recherche-juridique-fr-avancee":
+        research_guardrails = """
+## Recherche juridique FR avancee
+
+- Perimetre strict: droit francais uniquement.
+- OpenLegi avant Parallel pour toute question de droit positif francais.
+- Utiliser `parallel-cli` uniquement avec sortie JSON (`--json`) pour recherche web publique, extraction, enrichissement ou veille.
+- La couche Parallel Task API est une deuxieme couche backend; elle ne remplace pas le CLI pour Cowork local.
+- Ne pas remplacer `jurisprudence-multilingue`: renvoyer vers ce workflow pour droit compare, traduction, CJUE/CEDH hors question FR, ou analyse multi-juridictionnelle.
+- Toute conclusion critique sans source officielle reste `A VERIFIER`.
+
+"""
     return f"""---
 name: {slug}
 description: {meta["description"]}
@@ -762,8 +890,7 @@ Every external-facing output is a draft for professional review and must include
 - Cite legal sources and flag any point that depends on recent law or incomplete documents.
 - Do not execute filings, external communications, ledger postings, approvals or binding decisions.
 - If source verification is unavailable, mark the point as `[A VERIFIER - source non confirmee]`.
-
-## Skills this agent uses
+{research_guardrails}## Skills this agent uses
 
 {skills}
 """
@@ -889,6 +1016,52 @@ def workflow_schema(workflow: str, schema_kind: str) -> dict:
     )
 
 
+def common_ref(schema_name: str) -> dict:
+    return {"$ref": f"../common/{schema_name}.schema.json"}
+
+
+def parallel_task_schemas() -> dict[str, dict]:
+    return {
+        "recherche-juridique-fr.input": object_schema(
+            "Legal-FR Parallel Task input",
+            {
+                "workflow": {"const": "recherche-juridique-fr-avancee"},
+                "question": {"type": "string", "minLength": 1},
+                "legal_domain": {"type": "string"},
+                "official_source_required": {"type": "boolean"},
+                "processor": string_enum(["lite", "base", "core", "pro", "ultra"]),
+            },
+            ["workflow", "question", "official_source_required"],
+        ),
+        "recherche-juridique-fr.output": object_schema(
+            "Legal-FR Parallel Task output",
+            {
+                "workflow": {"const": "recherche-juridique-fr-avancee"},
+                "draft_notice": {"const": "DRAFT - Validation professionnelle requise"},
+                "question": {"type": "string"},
+                "answer": {"type": "string"},
+                "official_sources": {"type": "array", "items": common_ref("source-citation")},
+                "secondary_sources": {"type": "array", "items": common_ref("source-citation")},
+                "source_gaps": {"type": "array", "items": {"type": "string"}},
+                "findings": {"type": "array", "items": common_ref("finding")},
+                "audit_trail": {"type": "array", "items": common_ref("audit-trail")},
+                "human_validation": common_ref("human-validation"),
+                "parallel": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "run_id": {"type": "string"},
+                        "processor": {"type": "string"},
+                        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                    },
+                    "required": ["run_id", "processor", "confidence"],
+                },
+            },
+            ["workflow", "draft_notice", "question", "answer", "audit_trail", "human_validation", "parallel"],
+        ),
+    }
+
+
 def audit_readme() -> str:
     return """# Audit Legal-FR
 
@@ -923,6 +1096,46 @@ The manual gate requires reviewers to preserve the draft notice, review `source_
 
 def eval_input(workflow: str, case_id: str, case_type: str, risk_level: str) -> str:
     details = EVAL_CASE_DETAILS[case_type]
+    if workflow == "recherche-juridique-fr-avancee":
+        research_note = RESEARCH_FR_EVAL_CASES[case_id]
+        return f"""# Eval fixture {case_id}: {workflow}
+
+DRAFT - Validation professionnelle requise
+
+## Workflow
+
+`{workflow}`
+
+## Case type
+
+`{case_type}`
+
+## Risk level
+
+`{risk_level}`
+
+## Cas eval recherche-juridique-fr-avancee
+
+{research_note}
+
+Question: verifier l'etat du droit francais applicable.
+Contrainte: OpenLegi doit etre interroge avant Parallel.
+Source attendue: officielle si conclusion critique.
+
+## Cabinet scenario
+
+{details["input_note"]}
+
+## Expected handling
+
+{details["expected_behavior"]}
+
+## Source package
+
+- Document reference: `{workflow}-{case_id}-document`
+- Source status to test: `{details["source_status"]}`
+- Human validation remains mandatory before reliance.
+"""
     return f"""# Eval fixture {case_id}: {workflow}
 
 DRAFT - Validation professionnelle requise
@@ -1034,7 +1247,7 @@ def expected_eval_output(workflow: str, case_id: str, case_type: str, risk_level
         },
         "audit_trail": audit_trail,
     }
-    return {
+    expected = {
         "workflow": workflow,
         "document_intake": document_intake,
         "draft_notice": "DRAFT - Validation professionnelle requise",
@@ -1043,6 +1256,16 @@ def expected_eval_output(workflow: str, case_id: str, case_type: str, risk_level
         "human_validation": human_validation,
         "coverage": coverage,
     }
+    if workflow == "recherche-juridique-fr-avancee":
+        expected["parallel"] = {
+            "run_id": "trun_eval_reference",
+            "processor": "pro",
+            "confidence": 0.78,
+        }
+        expected["official_sources"] = [source_citation] if details["source_status"] == "official" else []
+        expected["secondary_sources"] = [] if details["source_status"] != "secondary" else [source_citation]
+        expected["source_gaps"] = ["A VERIFIER si aucune source officielle n'est confirmee"]
+    return expected
 
 
 def rubric_text(workflow: str) -> str:
@@ -1075,6 +1298,12 @@ def production_grade_files() -> None:
     for name, schema in common_schemas().items():
         write(
             VERTICAL / "schemas" / "common" / f"{name}.schema.json",
+            json.dumps(schema, indent=2, ensure_ascii=False) + "\n",
+        )
+
+    for name, schema in parallel_task_schemas().items():
+        write(
+            VERTICAL / "schemas" / "parallel-task" / f"{name}.schema.json",
             json.dumps(schema, indent=2, ensure_ascii=False) + "\n",
         )
 
@@ -1135,16 +1364,216 @@ def vertical_docs() -> None:
     )
     write(
         VERTICAL / "README.md",
-        "# Legal-FR\n\nVertical juridique francais pour workflows Legora-FR, avec playbooks, Tabular Review, OpenLegi, Exa et agents metier Cowork.\n",
+        """# Legal-FR
+
+Legal-FR is a vertical juridique francais for Legora-FR workflows, enriched by Harvey-FR patterns and adapted to cabinet practice. It packages reusable commands, skills, schemas, eval fixtures, source-checking conventions, and MCP connector definitions for French legal drafting and review workflows.
+
+Every external deliverable produced from this vertical is a draft for professional review, not a final legal opinion or client-ready work product.
+
+## Cabinet-Grade Assets
+
+- Schemas: common and workflow-specific JSON schemas define intake, source citations, findings, risk scores, audit trails, human validation, extraction outputs, and report outputs.
+- Evals: fixture inputs, expected JSON outputs, rubrics, and a local runner cover compliant cases, blocking red flags, current-law uncertainty, incomplete documents, and missing sources.
+- Audit trail: each material finding should preserve the source excerpt, source status, confidence, and reviewer note needed for cabinet review.
+- Quality gates: outputs must pass legal quality checks before delivery, including source coverage, structured fields, confidence handling, draft status, and human validation metadata.
+- Connector verification: OpenLegi is required for French positive law and Exa is required for broader research; `scripts/check_legal_fr_connectors.py` validates the connector configuration without network calls.
+- Human validation gates: outputs remain blocked for client or external use until a qualified professional validates them.
+
+## Workflows
+
+| Workflow slug | Purpose |
+|---|---|
+| `revue-conformite-interne` | Build and apply internal compliance playbooks, then produce findings and remediation notes. |
+| `analyse-contrats-fournisseurs` | Review supplier contracts across a corpus, extract non-standard terms, compare positions, and flag purchasing/legal risks. |
+| `chronologie-contentieux` | Build litigation chronologies, verify procedural deadlines, assess causality, and prepare hearing-oriented summaries. |
+| `jurisprudence-multilingue` | Research, read, compare, translate, and cite case law across French and broader legal sources. |
+| `revue-contrats-travail` | Review employment contracts and HR corpora against French labor law, collective bargaining rules, remuneration, and privacy constraints. |
+| `red-flags-bail` | Identify red flags in commercial leases, including lease status, Pinel-law points, non-standard clauses, renewal scenarios, and real-estate tax issues. |
+| `note-information-amf` | Draft and check AMF-oriented disclosure sections, including risk factors, governance, ESG, KPIs, and regulatory citations. |
+| `tabular-due-diligence` | Run tabular due diligence over transaction corpora, extract structured terms, score findings, and consolidate executive reports. |
+| `recherche-juridique-fr-avancee` | Research French legal questions with OpenLegi-first source discipline, Parallel CLI deep research, source audit, veille, and Task API second-layer scaffolding. |
+
+## Parallel Task API Layer
+
+Parallel CLI is the default local/Cowork execution path for advanced French legal research. Parallel Task API is the deuxieme couche for backend production, long-running research, batch enrichment, polling, webhooks, and schema-backed outputs.
+
+Local scaffold verification:
+
+```bash
+python scripts/check_legal_fr_parallel_task_api.py
+```
+
+Expected output:
+
+```text
+Legal-FR Parallel Task API scaffold OK
+```
+
+## Verification
+
+Run these commands from the repository root before committing Legal-FR changes:
+
+```bash
+python scripts/check.py
+python -m unittest tests.test_legal_fr_scaffold tests.test_legal_fr_production_grade tests.test_legal_fr_eval_fixtures -v
+python scripts/run_legal_fr_evals.py
+python scripts/check_legal_fr_connectors.py
+```
+
+The connector check warns if `OPENLEGI_TOKEN` is not configured locally; that warning is expected in a development environment as long as the config itself is valid.
+
+## Operating Notes
+
+- Extract and validate structured JSON before writing any Markdown report. Markdown is a presentation layer over the schema-backed extraction, not the source of truth.
+- Use official legal sources for critical legal conclusions. For French positive law, query OpenLegi first; use Exa and Parallel CLI for broader public research, secondary context, comparative checks, enrichment, or source discovery.
+- Mark uncertain current-law points as `A VERIFIER` and do not convert uncertainty into a firm conclusion.
+- Every external report must display `DRAFT - Validation professionnelle requise`.
+- Maintain an audit trail for material findings: source excerpt, source status, confidence, and reviewer note.
+- Apply the Legal-FR quality gates before final output, especially source status, confidence bands, schema completeness, draft notice, and human validation metadata.
+- Human validation by a qualified legal professional is mandatory before any client, regulator, counterparty, or other external use.
+- Only OpenLegi and Exa are required MCP connectors for now; Parallel CLI and Parallel Task API are execution layers for advanced research, not replacements for source validation.
+""",
     )
     write(VERTICAL / "CHANGELOG.md", "# Changelog\n\n## 1.0.0\n\n- Creation du vertical Legal-FR et des workflows Legora-FR.\n")
     write(
         VERTICAL / "CLAUDE.md",
-        "# Legal-FR Instructions\n\nToujours produire des drafts validates par un professionnel du droit. Citer les sources et signaler les incertitudes. Ne pas exposer inutilement de donnees personnelles.\n",
+        """# Legal-FR Runtime Instructions
+
+Use these instructions for Legal-FR cabinet workflows.
+
+## Required Output Posture
+
+- Treat all external deliverables as drafts. Every report, memo, table, note, or client-facing artifact must include: `DRAFT - Validation professionnelle requise`.
+- Human validation by a qualified legal professional is mandatory before client, regulator, counterparty, or other external use.
+- Do not present a legal conclusion as final when source coverage, current-law status, document completeness, or interpretation remains uncertain.
+
+## Source Order and Citations
+
+- For French positive law, use OpenLegi before Exa.
+- Use Exa for broader research, secondary materials, comparative checks, source discovery, and non-positive-law context.
+- Cite an official source for every critical legal conclusion whenever an official source exists.
+- If the governing rule, current-law position, or source status is uncertain, mark the point as `A VERIFIER`.
+- No connector beyond OpenLegi and Exa is required for now.
+
+## Recherche juridique FR avancee
+
+- Utiliser OpenLegi avant Parallel pour toute question de droit positif francais.
+- Utiliser Parallel CLI seulement avec `--json`.
+- Ne jamais exposer `PARALLEL_API_KEY`.
+- Classer chaque source: officielle, institutionnelle, doctrine, presse, inconnue.
+- La couche Parallel Task API est une deuxieme couche backend; elle ne remplace pas le CLI pour Cowork local.
+- Marquer `A VERIFIER` si une conclusion critique ne dispose pas de source officielle.
+
+## Structured Extraction First
+
+- Extract structured JSON before writing Markdown.
+- Validate the JSON against the applicable Legal-FR schema where available.
+- Use the JSON as the source of truth for the Markdown report, tables, findings, risk scores, citations, and validation metadata.
+- Do not hide extraction gaps in prose. Surface missing documents, unreadable sections, incomplete citations, and uncertain legal bases.
+
+## Audit Trail
+
+Maintain an audit trail for every material finding:
+
+- Source excerpt.
+- Source status, such as official, unverified, secondary, or not_found.
+- Confidence.
+- Reviewer note for the human validator.
+
+The audit trail must stay consistent with the finding, citation, risk score, and human validation fields.
+
+## Quality Gates
+
+Apply the Legal-FR quality gates before final output:
+
+- Draft notice is present.
+- Required schema fields are populated.
+- Critical legal conclusions have cited sources.
+- French positive-law research used OpenLegi before Exa.
+- Uncertain or current-law-sensitive points are marked `A VERIFIER`.
+- Source status and confidence are explicit.
+- Audit trail entries exist for material findings.
+- Human validation metadata states that validation is required and not yet completed unless a qualified reviewer has actually validated it.
+
+If a gate fails, stop and return the blocking issues instead of producing a polished external deliverable.
+""",
     )
     write(
         VERTICAL / "CONNECTORS.md",
-        "# Connecteurs Legal-FR\n\n## Exa MCP\n\nEndpoint: `https://mcp.exa.ai/mcp`.\n\n## OpenLegi MCP\n\nConfiguration MCP remote: `https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}`.\n\nOpenLegi donne acces aux codes, jurisprudences, conventions collectives, JORF, LODA, RNE et EUR-Lex selon les outils disponibles.\n\n## Parallel Agent Skills\n\nInstallation recommandee: `npx skills add parallel-web/parallel-agent-skills --all --global`.\n",
+        """# Connecteurs Legal-FR
+
+## Exa MCP
+
+Endpoint: `https://mcp.exa.ai/mcp`.
+
+## OpenLegi MCP
+
+Configuration MCP remote: `https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}`.
+
+OpenLegi donne acces aux codes, jurisprudences, conventions collectives, JORF, LODA, RNE et EUR-Lex selon les outils disponibles.
+
+## Verification locale
+
+Le script de verification est local/offline: il lit uniquement `plugins/vertical-plugins/legal-fr/.mcp.json` et ne contacte ni Exa ni OpenLegi.
+
+Commande:
+
+```bash
+python scripts/check_legal_fr_connectors.py
+```
+
+Si `OPENLEGI_TOKEN` n'est pas configure dans l'environnement, la verification de configuration peut quand meme reussir avec l'avertissement attendu:
+
+```text
+WARN: OPENLEGI_TOKEN is not set; runtime OpenLegi calls will fail until configured.
+Legal-FR connector config OK
+```
+
+Quand `OPENLEGI_TOKEN` est configure et que les entrees MCP sont valides, la sortie attendue est:
+
+```text
+Legal-FR connector config OK
+```
+
+## Parallel Agent Skills
+
+Installation recommandee: `npx skills add parallel-web/parallel-agent-skills --all --global`.
+
+## Parallel CLI
+
+Parallel CLI is the local/Cowork execution layer for advanced French legal research.
+
+Install options:
+
+```bash
+pipx install "parallel-web-tools[cli]"
+```
+
+or:
+
+```bash
+npm install -g parallel-web-cli
+```
+
+Verification:
+
+```bash
+python scripts/check_legal_fr_parallel_cli.py
+```
+
+Expected when the CLI is installed and local auth or `PARALLEL_API_KEY` is available:
+
+```text
+Legal-FR Parallel CLI config OK
+```
+
+If `PARALLEL_API_KEY` is not set, local login or device flow may still work. The checker prints:
+
+```text
+WARN: PARALLEL_API_KEY is not set; parallel-cli must be authenticated by local login or device flow.
+Legal-FR Parallel CLI config OK
+```
+""",
     )
     for family, commands in COMMANDS.items():
         for command, description in commands.items():
@@ -1194,7 +1623,7 @@ def main() -> None:
     production_grade_files()
     agent_plugins()
     marketplace()
-    print("generated legal-fr vertical, production-grade layer and 8 Legal-FR agent plugins")
+    print(f"generated legal-fr vertical, production-grade layer and {len(WORKFLOWS)} Legal-FR agent plugins")
 
 
 if __name__ == "__main__":

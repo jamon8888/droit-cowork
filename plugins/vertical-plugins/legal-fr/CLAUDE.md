@@ -16,6 +16,15 @@ Use these instructions for Legal-FR cabinet workflows.
 - If the governing rule, current-law position, or source status is uncertain, mark the point as `A VERIFIER`.
 - No connector beyond OpenLegi and Exa is required for now.
 
+## Recherche juridique FR avancee
+
+- Utiliser OpenLegi avant Parallel pour toute question de droit positif francais.
+- Utiliser Parallel CLI seulement avec `--json`.
+- Ne jamais exposer `PARALLEL_API_KEY`.
+- Classer chaque source: officielle, institutionnelle, doctrine, presse, inconnue.
+- La couche Parallel Task API est une deuxieme couche backend; elle ne remplace pas le CLI pour Cowork local.
+- Marquer `A VERIFIER` si une conclusion critique ne dispose pas de source officielle.
+
 ## Structured Extraction First
 
 - Extract structured JSON before writing Markdown.

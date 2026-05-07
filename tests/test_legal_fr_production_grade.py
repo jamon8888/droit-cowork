@@ -16,6 +16,7 @@ WORKFLOWS = [
     "red-flags-bail",
     "note-information-amf",
     "tabular-due-diligence",
+    "recherche-juridique-fr-avancee",
 ]
 
 WORKFLOW_INTAKE_METADATA = {
@@ -50,6 +51,10 @@ WORKFLOW_INTAKE_METADATA = {
     "tabular-due-diligence": {
         "detected_type": "data_room_document",
         "legal_domain": "due_diligence",
+    },
+    "recherche-juridique-fr-avancee": {
+        "detected_type": "legal_research_question",
+        "legal_domain": "french_legal_research",
     },
 }
 
@@ -153,6 +158,74 @@ class LegalFrProductionGradeTest(unittest.TestCase):
                 self.assertIn("legal-qa-reviewer", prompt)
                 self.assertIn("human-validation-gate", prompt)
                 self.assertIn("audit-trail", prompt)
+
+    def test_recherche_juridique_fr_agent_keeps_fr_only_scope(self) -> None:
+        prompt = (
+            AGENT_PLUGINS
+            / "recherche-juridique-fr-avancee"
+            / "agents"
+            / "recherche-juridique-fr-avancee.md"
+        ).read_text(encoding="utf-8")
+        self.assertIn("droit francais uniquement", prompt.lower())
+        self.assertIn("OpenLegi avant Parallel", prompt)
+        self.assertIn("parallel-cli", prompt)
+        self.assertIn("DRAFT - Validation professionnelle requise", prompt)
+        self.assertIn("jurisprudence-multilingue", prompt)
+
+    def test_recherche_commands_use_parallel_cli_json(self) -> None:
+        command_files = sorted((LEGAL_FR / "commands" / "recherche").glob("*.md"))
+        self.assertEqual(len(command_files), 9)
+        for command_file in command_files:
+            text = command_file.read_text(encoding="utf-8")
+            with self.subTest(command=command_file.name):
+                if command_file.stem.startswith("task-"):
+                    self.assertIn("legal_fr_parallel_task.py", text)
+                else:
+                    self.assertIn("parallel-cli", text)
+                    self.assertIn("--json", text)
+                self.assertIn("DRAFT - Validation professionnelle requise", text)
+
+    def test_parallel_task_api_layer_is_second_layer_not_required_path(self) -> None:
+        readme = (LEGAL_FR / "README.md").read_text(encoding="utf-8")
+        self.assertIn("Parallel Task API", readme)
+        self.assertIn("deuxieme couche", readme.lower())
+        self.assertIn("Parallel CLI", readme)
+        schema = load_json(
+            LEGAL_FR
+            / "schemas"
+            / "parallel-task"
+            / "recherche-juridique-fr.output.schema.json"
+        )
+        properties = schema["properties"]
+        self.assertIn("draft_notice", properties)
+        self.assertIn("audit_trail", properties)
+        self.assertIn("human_validation", properties)
+        self.assertIn("parallel", properties)
+
+    def test_parallel_cli_checker_exists_and_documents_no_secret_policy(self) -> None:
+        checker = ROOT / "scripts" / "check_legal_fr_parallel_cli.py"
+        self.assertTrue(checker.is_file())
+        text = checker.read_text(encoding="utf-8")
+        self.assertIn("PARALLEL_API_KEY", text)
+        self.assertIn("parallel-cli", text)
+        self.assertNotIn("PARALLEL_API_KEY=", text)
+        connectors = (LEGAL_FR / "CONNECTORS.md").read_text(encoding="utf-8")
+        self.assertIn("python scripts/check_legal_fr_parallel_cli.py", connectors)
+        self.assertIn("Legal-FR Parallel CLI config OK", connectors)
+
+    def test_parallel_task_api_wrapper_and_checker_exist(self) -> None:
+        wrapper = ROOT / "scripts" / "legal_fr_parallel_task.py"
+        checker = ROOT / "scripts" / "check_legal_fr_parallel_task_api.py"
+        self.assertTrue(wrapper.is_file())
+        self.assertTrue(checker.is_file())
+        wrapper_text = wrapper.read_text(encoding="utf-8")
+        checker_text = checker.read_text(encoding="utf-8")
+        self.assertIn("run", wrapper_text)
+        self.assertIn("status", wrapper_text)
+        self.assertIn("poll", wrapper_text)
+        self.assertIn("PARALLEL_API_KEY", wrapper_text)
+        self.assertNotIn("PARALLEL_API_KEY=", wrapper_text)
+        self.assertIn("recherche-juridique-fr.output.schema.json", checker_text)
 
     def test_no_piighost_or_hardcoded_tokens_reintroduced(self) -> None:
         checked_files = [

@@ -111,7 +111,7 @@ Start with **financial-analysis** — it carries the shared modeling skills and 
 | **[wealth-management](./plugins/vertical-plugins/wealth-management)** | Client reviews, financial plans, rebalancing, reporting, TLH. |
 | **[fund-admin](./plugins/vertical-plugins/fund-admin)** | GL recon, break tracing, accruals, roll-forwards, variance commentary, NAV tie-out. |
 | **[operations](./plugins/vertical-plugins/operations)** | KYC document parsing and rules-grid evaluation. |
-| **[legal-fr](./plugins/vertical-plugins/legal-fr)** | Cabinet-grade legal workflows: schemas, evals, audit trail, OpenLegi/Exa source verification, human validation gates. |
+| **[legal-fr](./plugins/vertical-plugins/legal-fr)** | Cabinet-grade legal workflows: schemas, evals, audit trail, OpenLegi/Exa source verification, human validation gates, plus advanced FR legal research via OpenLegi-first source discipline and Parallel CLI/Task API layering. |
 | **[lseg](./plugins/partner-built/lseg)** *(partner)* | Bond RV, swap curves, FX carry, options vol, macro-rates monitoring on LSEG data. |
 | **[sp-global](./plugins/partner-built/spglobal)** *(partner)* | Tear sheets, earnings previews, funding digests on S&P Capital IQ. |
 

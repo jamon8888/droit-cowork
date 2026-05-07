@@ -1,0 +1,8 @@
+{
+  "name": "recherche-juridique-fr-avancee",
+  "version": "1.0.0",
+  "description": "Recherche juridique francaise avancee avec OpenLegi, Parallel CLI, audit des sources et couche Task API.",
+  "author": {
+    "name": "Hacienda.diy"
+  }
+}

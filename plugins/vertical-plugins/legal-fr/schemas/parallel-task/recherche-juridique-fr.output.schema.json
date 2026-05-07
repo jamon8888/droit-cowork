@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR Parallel Task output",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "workflow": {
+      "const": "recherche-juridique-fr-avancee"
+    },
+    "draft_notice": {
+      "const": "DRAFT - Validation professionnelle requise"
+    },
+    "question": {
+      "type": "string"
+    },
+    "answer": {
+      "type": "string"
+    },
+    "official_sources": {
+      "type": "array",
+      "items": {
+        "$ref": "../common/source-citation.schema.json"
+      }
+    },
+    "secondary_sources": {
+      "type": "array",
+      "items": {
+        "$ref": "../common/source-citation.schema.json"
+      }
+    },
+    "source_gaps": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "$ref": "../common/finding.schema.json"
+      }
+    },
+    "audit_trail": {
+      "type": "array",
+      "items": {
+        "$ref": "../common/audit-trail.schema.json"
+      }
+    },
+    "human_validation": {
+      "$ref": "../common/human-validation.schema.json"
+    },
+    "parallel": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "run_id": {
+          "type": "string"
+        },
+        "processor": {
+          "type": "string"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      },
+      "required": [
+        "run_id",
+        "processor",
+        "confidence"
+      ]
+    }
+  },
+  "required": [
+    "workflow",
+    "draft_notice",
+    "question",
+    "answer",
+    "audit_trail",
+    "human_validation",
+    "parallel"
+  ]
+}

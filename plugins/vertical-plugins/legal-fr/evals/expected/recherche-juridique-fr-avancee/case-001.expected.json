@@ -1,0 +1,116 @@
+{
+  "workflow": "recherche-juridique-fr-avancee",
+  "document_intake": {
+    "document_id": "recherche-juridique-fr-avancee-case-001-document",
+    "filename": "recherche-juridique-fr-avancee-case-001.md",
+    "detected_type": "legal_research_question",
+    "language": "fr",
+    "legal_domain": "french_legal_research",
+    "readability": {
+      "status": "ok",
+      "confidence": 0.9
+    },
+    "requires_human_triage": true
+  },
+  "draft_notice": "DRAFT - Validation professionnelle requise",
+  "findings": [
+    {
+      "finding_id": "recherche-juridique-fr-avancee-case-001-finding-001",
+      "title": "compliant eval finding",
+      "description": "Confirmer la conformite apparente tout en maintenant le statut draft.",
+      "document_reference": "recherche-juridique-fr-avancee-case-001-document",
+      "source_citation": {
+        "source_status": "official",
+        "citation": "Fixture source for recherche-juridique-fr-avancee case-001",
+        "url": "",
+        "checked_with": "openlegi",
+        "verification_note": "Confirmer la conformite apparente tout en maintenant le statut draft."
+      },
+      "risk_score": {
+        "severity": "minor",
+        "legal_impact": 1,
+        "business_impact": 1,
+        "probability": 0,
+        "urgency": 0,
+        "confidence": 0.9,
+        "global_score": 1.5,
+        "rationale": "Fixture case compliant with official source status."
+      },
+      "audit_trail": {
+        "finding_id": "recherche-juridique-fr-avancee-case-001-finding-001",
+        "workflow": "recherche-juridique-fr-avancee",
+        "document_id": "recherche-juridique-fr-avancee-case-001-document",
+        "source_excerpt": "Document lisible, source officielle disponible, aucun red flag bloquant apparent.",
+        "legal_source": {
+          "source_status": "official",
+          "citation": "Fixture source for recherche-juridique-fr-avancee case-001",
+          "url": "",
+          "checked_with": "openlegi",
+          "verification_note": "Confirmer la conformite apparente tout en maintenant le statut draft."
+        },
+        "agent": "recherche-juridique-fr-avancee",
+        "reviewer": "legal-qa-reviewer",
+        "confidence": 0.9,
+        "human_validation": {
+          "validated_by_human": false,
+          "validator_role": "avocat ou juriste senior",
+          "validation_required": true,
+          "validation_reason": "Eval fixture only; external reliance requires professional validation."
+        }
+      }
+    }
+  ],
+  "audit_trail": [
+    {
+      "finding_id": "recherche-juridique-fr-avancee-case-001-finding-001",
+      "workflow": "recherche-juridique-fr-avancee",
+      "document_id": "recherche-juridique-fr-avancee-case-001-document",
+      "source_excerpt": "Document lisible, source officielle disponible, aucun red flag bloquant apparent.",
+      "legal_source": {
+        "source_status": "official",
+        "citation": "Fixture source for recherche-juridique-fr-avancee case-001",
+        "url": "",
+        "checked_with": "openlegi",
+        "verification_note": "Confirmer la conformite apparente tout en maintenant le statut draft."
+      },
+      "agent": "recherche-juridique-fr-avancee",
+      "reviewer": "legal-qa-reviewer",
+      "confidence": 0.9,
+      "human_validation": {
+        "validated_by_human": false,
+        "validator_role": "avocat ou juriste senior",
+        "validation_required": true,
+        "validation_reason": "Eval fixture only; external reliance requires professional validation."
+      }
+    }
+  ],
+  "human_validation": {
+    "validated_by_human": false,
+    "validator_role": "avocat ou juriste senior",
+    "validation_required": true,
+    "validation_reason": "Eval fixture only; external reliance requires professional validation."
+  },
+  "coverage": {
+    "documents_seen": 1,
+    "documents_processed": 1,
+    "documents_unreadable": 0
+  },
+  "parallel": {
+    "run_id": "trun_eval_reference",
+    "processor": "pro",
+    "confidence": 0.78
+  },
+  "official_sources": [
+    {
+      "source_status": "official",
+      "citation": "Fixture source for recherche-juridique-fr-avancee case-001",
+      "url": "",
+      "checked_with": "openlegi",
+      "verification_note": "Confirmer la conformite apparente tout en maintenant le statut draft."
+    }
+  ],
+  "secondary_sources": [],
+  "source_gaps": [
+    "A VERIFIER si aucune source officielle n'est confirmee"
+  ]
+}
