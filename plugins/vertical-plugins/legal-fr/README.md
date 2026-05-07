@@ -37,6 +37,12 @@ Local scaffold verification:
 python scripts/check_legal_fr_parallel_task_api.py
 ```
 
+Expected output:
+
+```text
+Legal-FR Parallel Task API scaffold OK
+```
+
 ## Verification
 
 Run these commands from the repository root before committing Legal-FR changes:

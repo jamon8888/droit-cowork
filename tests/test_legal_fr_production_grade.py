@@ -213,6 +213,20 @@ class LegalFrProductionGradeTest(unittest.TestCase):
         self.assertIn("python scripts/check_legal_fr_parallel_cli.py", connectors)
         self.assertIn("Legal-FR Parallel CLI config OK", connectors)
 
+    def test_parallel_task_api_wrapper_and_checker_exist(self) -> None:
+        wrapper = ROOT / "scripts" / "legal_fr_parallel_task.py"
+        checker = ROOT / "scripts" / "check_legal_fr_parallel_task_api.py"
+        self.assertTrue(wrapper.is_file())
+        self.assertTrue(checker.is_file())
+        wrapper_text = wrapper.read_text(encoding="utf-8")
+        checker_text = checker.read_text(encoding="utf-8")
+        self.assertIn("run", wrapper_text)
+        self.assertIn("status", wrapper_text)
+        self.assertIn("poll", wrapper_text)
+        self.assertIn("PARALLEL_API_KEY", wrapper_text)
+        self.assertNotIn("PARALLEL_API_KEY=", wrapper_text)
+        self.assertIn("recherche-juridique-fr.output.schema.json", checker_text)
+
     def test_no_piighost_or_hardcoded_tokens_reintroduced(self) -> None:
         checked_files = [
             *LEGAL_FR.rglob("*.md"),
