@@ -1,0 +1,22 @@
+{
+  "extraKnownMarketplaces": {
+    "legal-fr-suite": {
+      "source": {
+        "source": "github",
+        "repo": "jamon8888/droit-cowork"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "legal-fr@legal-fr-suite": true,
+    "revue-conformite-interne@legal-fr-suite": true,
+    "analyse-contrats-fournisseurs@legal-fr-suite": true,
+    "chronologie-contentieux@legal-fr-suite": true,
+    "jurisprudence-multilingue@legal-fr-suite": true,
+    "revue-contrats-travail@legal-fr-suite": true,
+    "red-flags-bail@legal-fr-suite": true,
+    "note-information-amf@legal-fr-suite": true,
+    "tabular-due-diligence@legal-fr-suite": true,
+    "recherche-juridique-fr-avancee@legal-fr-suite": true
+  }
+}

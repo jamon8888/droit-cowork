@@ -8,6 +8,7 @@ Legal-FR Suite is organized around one vertical plugin and nine self-contained a
 - Generated or bundled agent copies: `plugins/agent-plugins/<agent>/skills`
 - Generator: `scripts/generate_legal_fr_scaffold.py`
 - Active marketplace: `.claude-plugin/marketplace.json`
+- Project marketplace registration: `.claude/settings.json` pointing to `jamon8888/droit-cowork`
 
 ## Active vs Archived
 

@@ -60,6 +60,7 @@ for yml in managed_yaml_files():
 # --- 2. JSON parse ----------------------------------------------------------
 json_globs = [
     ".claude-plugin/marketplace.json",
+    ".claude/settings.json",
     "plugins/**/.claude-plugin/plugin.json",
     "managed-agent-cookbooks/*/steering-examples.json",
 ]
@@ -155,10 +156,31 @@ for md in sorted(PLUGINS.glob("agent-plugins/*/agents/*.md")):
 
 # --- 4c. marketplace source paths resolve ----------------------------------
 mp = ROOT / ".claude-plugin" / "marketplace.json"
-for p in json.loads(mp.read_text()).get("plugins", []):
+marketplace = json.loads(mp.read_text())
+for p in marketplace.get("plugins", []):
     src = (ROOT / p["source"]).resolve()
     if not (src / ".claude-plugin" / "plugin.json").is_file():
         err(f"marketplace: {p['name']} source -> {p['source']} (no plugin.json)")
+
+# --- 4d. project Claude marketplace settings -------------------------------
+settings_file = ROOT / ".claude" / "settings.json"
+if not settings_file.is_file():
+    err("claude-settings: .claude/settings.json missing")
+else:
+    settings = json.loads(settings_file.read_text())
+    marketplace_settings = settings.get("extraKnownMarketplaces", {}).get("legal-fr-suite")
+    if not marketplace_settings:
+        err("claude-settings: missing extraKnownMarketplaces.legal-fr-suite")
+    else:
+        source = marketplace_settings.get("source", {})
+        if source.get("source") != "github" or source.get("repo") != "jamon8888/droit-cowork":
+            err("claude-settings: legal-fr-suite must point to github repo jamon8888/droit-cowork")
+
+    enabled_plugins = settings.get("enabledPlugins", {})
+    for plugin in marketplace.get("plugins", []):
+        key = f"{plugin['name']}@legal-fr-suite"
+        if enabled_plugins.get(key) is not True:
+            err(f"claude-settings: enabledPlugins.{key} must be true")
 
 # --- 5. required files per managed-agent -----------------------------------
 if MANAGED.is_dir():

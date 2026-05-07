@@ -8,6 +8,8 @@ Every output is a draft for professional validation. Nothing in this repository 
 
 - `plugins/vertical-plugins/legal-fr`: source of commands, skills, playbooks, schemas, evals, and MCP configuration.
 - `plugins/agent-plugins/*`: nine self-contained Legal-FR agent plugins with bundled skills.
+- `.claude-plugin/marketplace.json`: official Claude Code marketplace catalog.
+- `.claude/settings.json`: project-scope marketplace registration for `jamon8888/droit-cowork`.
 - `scripts`: Legal-FR generation, validation, eval, connector, Parallel CLI, and Parallel Task API helpers.
 - `tests`: Legal-FR structural, production-grade, clean-repo, and eval fixture tests.
 - `docs`: architecture, agents, workflows, specs, and implementation plans.
@@ -37,6 +39,12 @@ python -m unittest tests.test_legal_fr_scaffold tests.test_legal_fr_production_g
 python scripts/run_legal_fr_evals.py
 python scripts/check_legal_fr_connectors.py
 python scripts/check_legal_fr_parallel_task_api.py
+```
+
+After publishing to GitHub, install the marketplace with:
+
+```bash
+claude plugin marketplace add jamon8888/droit-cowork
 ```
 
 Optional environment check:

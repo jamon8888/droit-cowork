@@ -7,6 +7,8 @@ ROOT = Path(__file__).resolve().parents[1]
 VERTICAL = ROOT / "plugins" / "vertical-plugins" / "legal-fr"
 AGENTS = ROOT / "plugins" / "agent-plugins"
 MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
+CLAUDE_SETTINGS = ROOT / ".claude" / "settings.json"
+CLAUDE_README = ROOT / ".claude" / "README.md"
 
 EXPECTED_COMMANDS = {
     "conformite": ["verifier", "creer-playbook", "rapport"],
@@ -309,10 +311,27 @@ class LegalFrScaffoldTest(unittest.TestCase):
 
     def test_marketplace_registers_vertical_and_agents(self):
         marketplace = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
+        self.assertIn("workflows juridiques francais", marketplace["description"])
         entries = {entry["name"]: entry["source"] for entry in marketplace["plugins"]}
         self.assertEqual(entries["legal-fr"], "./plugins/vertical-plugins/legal-fr")
         for agent in EXPECTED_AGENTS:
             self.assertEqual(entries[agent], f"./plugins/agent-plugins/{agent}")
+
+    def test_claude_project_settings_register_github_marketplace(self):
+        self.assertTrue(CLAUDE_SETTINGS.is_file())
+        self.assertTrue(CLAUDE_README.is_file())
+        settings = json.loads(CLAUDE_SETTINGS.read_text(encoding="utf-8"))
+        source = settings["extraKnownMarketplaces"]["legal-fr-suite"]["source"]
+        self.assertEqual(source["source"], "github")
+        self.assertEqual(source["repo"], "jamon8888/droit-cowork")
+
+        marketplace = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
+        for plugin in marketplace["plugins"]:
+            self.assertIs(settings["enabledPlugins"][f"{plugin['name']}@legal-fr-suite"], True)
+
+        readme = CLAUDE_README.read_text(encoding="utf-8")
+        self.assertIn(".claude-plugin/marketplace.json", readme)
+        self.assertIn("jamon8888/droit-cowork", readme)
 
 
 if __name__ == "__main__":

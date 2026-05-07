@@ -32,6 +32,7 @@ This repository is the Legal-FR plugin suite for French legal workflows. Agents 
 
 - Edit Legal-FR generation logic in `scripts/generate_legal_fr_scaffold.py` when changing generated plugin assets.
 - Active marketplace entries live in `.claude-plugin/marketplace.json`.
+- Project Claude settings live in `.claude/settings.json` and register `jamon8888/droit-cowork` as the Legal-FR marketplace source.
 - Financial Services origin assets are archived under `archive/financial-services-origin/` and are not active plugin surface.
 
 ## Required Verification

@@ -6,6 +6,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 ARCHIVE = ROOT / "archive" / "financial-services-origin"
 MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
+CLAUDE_SETTINGS = ROOT / ".claude" / "settings.json"
 PLUGINS = ROOT / "plugins"
 
 LEGAL_FR_PLUGINS = [
@@ -40,6 +41,15 @@ class LegalFrCleanRepoTest(unittest.TestCase):
         self.assertEqual(entries["legal-fr"], "./plugins/vertical-plugins/legal-fr")
         for slug in LEGAL_FR_PLUGINS[1:]:
             self.assertEqual(entries[slug], f"./plugins/agent-plugins/{slug}")
+
+    def test_project_claude_settings_point_to_publish_repo(self) -> None:
+        settings = json.loads(CLAUDE_SETTINGS.read_text(encoding="utf-8"))
+        source = settings["extraKnownMarketplaces"]["legal-fr-suite"]["source"]
+        self.assertEqual(source, {"source": "github", "repo": "jamon8888/droit-cowork"})
+        self.assertEqual(
+            list(settings["enabledPlugins"]),
+            [f"{name}@legal-fr-suite" for name in LEGAL_FR_PLUGINS],
+        )
 
     def test_financial_services_assets_are_archived_not_active(self) -> None:
         self.assertTrue((ARCHIVE / "ARCHIVE.md").is_file())

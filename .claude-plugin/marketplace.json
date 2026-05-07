@@ -54,5 +54,6 @@
       "source": "./plugins/agent-plugins/recherche-juridique-fr-avancee",
       "description": "Recherche juridique francaise avancee avec OpenLegi, Parallel CLI, audit des sources et couche Task API."
     }
-  ]
+  ],
+  "description": "Suite de plugins Claude Code/Cowork pour workflows juridiques francais: Legal-FR vertical, agents metier, playbooks, OpenLegi, Exa et Parallel."
 }

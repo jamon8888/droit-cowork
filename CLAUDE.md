@@ -20,4 +20,6 @@ Use this repository as the active Legal-FR suite.
 
 Active Legal-FR assets live in `plugins/vertical-plugins/legal-fr`, `plugins/agent-plugins`, `scripts`, `tests`, and `docs`.
 
+Marketplace catalog and project registration live in `.claude-plugin/marketplace.json` and `.claude/settings.json`.
+
 Original Financial Services assets live in `archive/financial-services-origin/` and should not be treated as active plugin surface.

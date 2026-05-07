@@ -8,6 +8,9 @@ ROOT = Path(__file__).resolve().parents[1]
 VERTICAL = ROOT / "plugins" / "vertical-plugins" / "legal-fr"
 AGENTS = ROOT / "plugins" / "agent-plugins"
 MARKETPLACE = ROOT / ".claude-plugin" / "marketplace.json"
+CLAUDE_SETTINGS = ROOT / ".claude" / "settings.json"
+CLAUDE_README = ROOT / ".claude" / "README.md"
+MARKETPLACE_REPO = "jamon8888/droit-cowork"
 AUTHOR = {"name": "Hacienda.diy"}
 
 
@@ -2335,6 +2338,10 @@ def agent_plugins() -> None:
 
 def marketplace() -> None:
     data = json.loads(MARKETPLACE.read_text(encoding="utf-8"))
+    data["description"] = (
+        "Suite de plugins Claude Code/Cowork pour workflows juridiques francais: "
+        "Legal-FR vertical, agents metier, playbooks, OpenLegi, Exa et Parallel."
+    )
     entries = {entry["name"]: entry for entry in data["plugins"]}
     entries["legal-fr"] = {
         "name": "legal-fr",
@@ -2355,11 +2362,65 @@ def marketplace() -> None:
     write(MARKETPLACE, json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
 
+def claude_project_files() -> None:
+    plugin_names = ["legal-fr", *WORKFLOWS.keys()]
+    settings = {
+        "extraKnownMarketplaces": {
+            "legal-fr-suite": {
+                "source": {
+                    "source": "github",
+                    "repo": MARKETPLACE_REPO,
+                }
+            }
+        },
+        "enabledPlugins": {f"{name}@legal-fr-suite": True for name in plugin_names},
+    }
+    write(CLAUDE_SETTINGS, json.dumps(settings, indent=2, ensure_ascii=False) + "\n")
+    write(
+        CLAUDE_README,
+        f"""# Claude Project Settings
+
+This directory contains project-scope Claude Code settings for the Legal-FR marketplace.
+
+## Marketplace Target
+
+The official marketplace catalog is:
+
+- `.claude-plugin/marketplace.json`
+
+The project settings register that catalog from GitHub:
+
+- `{MARKETPLACE_REPO}`
+
+After this repository is pushed, users can add the marketplace manually with:
+
+```bash
+claude plugin marketplace add {MARKETPLACE_REPO}
+```
+
+or from inside Claude Code:
+
+```text
+/plugin marketplace add {MARKETPLACE_REPO}
+```
+
+`.claude/settings.json` also enables the Legal-FR vertical and all Legal-FR agent plugins by default for project users who trust the repository.
+
+## Notes
+
+- Do not put secrets in `.claude/settings.json`.
+- Keep API keys such as `OPENLEGI_TOKEN` and `PARALLEL_API_KEY` in the local environment.
+- Keep marketplace plugin sources relative to the repository root.
+""",
+    )
+
+
 def main() -> None:
     vertical_docs()
     production_grade_files()
     agent_plugins()
     marketplace()
+    claude_project_files()
     print(f"generated legal-fr vertical, production-grade layer and {len(WORKFLOWS)} Legal-FR agent plugins")
 
 
