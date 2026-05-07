@@ -28,6 +28,7 @@ EXPECTED_COMMANDS = {
         "task-status",
         "task-poll",
     ],
+    "workflow": ["init", "run", "review", "export", "eval"],
 }
 
 EXPECTED_PLAYBOOKS = [
@@ -42,9 +43,19 @@ EXPECTED_PLAYBOOKS = [
     "playbook-lbo.md",
     "playbook-immobilier.md",
     "playbook-dette.md",
+    "workflows/workflow-dd-ma.md",
+    "workflows/workflow-audit-rh.md",
+    "workflows/workflow-preparation-audience.md",
+    "workflows/workflow-audit-baux.md",
+    "workflows/workflow-conformite-fournisseurs.md",
+    "workflows/workflow-recherche-source-first.md",
 ]
 
 EXPECTED_SKILLS = [
+    "legal-fr-runtime",
+    "workflow-playbooks",
+    "source-ledger",
+    "review-queue",
     "confidentialite-donnees",
     "quality-gates-juridiques",
     "format-json-intermediaire",
@@ -95,6 +106,10 @@ EXPECTED_SKILLS = [
 
 EXPECTED_AGENTS = {
     "revue-conformite-interne": [
+        "legal-fr-runtime",
+        "workflow-playbooks",
+        "source-ledger",
+        "review-queue",
         "confidentialite-donnees",
         "quality-gates-juridiques",
         "lecture-playbook",
@@ -105,6 +120,10 @@ EXPECTED_AGENTS = {
         "tableau-consolide",
     ],
     "analyse-contrats-fournisseurs": [
+        "legal-fr-runtime",
+        "workflow-playbooks",
+        "source-ledger",
+        "review-queue",
         "confidentialite-donnees",
         "quality-gates-juridiques",
         "tabular-review",
@@ -117,6 +136,10 @@ EXPECTED_AGENTS = {
         "rapport-executif",
     ],
     "chronologie-contentieux": [
+        "legal-fr-runtime",
+        "workflow-playbooks",
+        "source-ledger",
+        "review-queue",
         "confidentialite-donnees",
         "quality-gates-juridiques",
         "tabular-review",
@@ -130,6 +153,10 @@ EXPECTED_AGENTS = {
         "tableau-consolide",
     ],
     "jurisprudence-multilingue": [
+        "legal-fr-runtime",
+        "workflow-playbooks",
+        "source-ledger",
+        "review-queue",
         "confidentialite-donnees",
         "quality-gates-juridiques",
         "sources-jurisprudence",
@@ -142,6 +169,10 @@ EXPECTED_AGENTS = {
         "rapport-executif",
     ],
     "revue-contrats-travail": [
+        "legal-fr-runtime",
+        "workflow-playbooks",
+        "source-ledger",
+        "review-queue",
         "confidentialite-donnees",
         "quality-gates-juridiques",
         "tabular-review",
@@ -154,6 +185,10 @@ EXPECTED_AGENTS = {
         "tableau-consolide",
     ],
     "red-flags-bail": [
+        "legal-fr-runtime",
+        "workflow-playbooks",
+        "source-ledger",
+        "review-queue",
         "confidentialite-donnees",
         "quality-gates-juridiques",
         "statut-baux-commerciaux",
@@ -166,6 +201,10 @@ EXPECTED_AGENTS = {
         "tableau-consolide",
     ],
     "note-information-amf": [
+        "legal-fr-runtime",
+        "workflow-playbooks",
+        "source-ledger",
+        "review-queue",
         "confidentialite-donnees",
         "quality-gates-juridiques",
         "droit-marches-financiers",
@@ -179,6 +218,10 @@ EXPECTED_AGENTS = {
         "rapport-executif",
     ],
     "tabular-due-diligence": [
+        "legal-fr-runtime",
+        "workflow-playbooks",
+        "source-ledger",
+        "review-queue",
         "confidentialite-donnees",
         "quality-gates-juridiques",
         "tabular-review",
@@ -195,6 +238,10 @@ EXPECTED_AGENTS = {
         "rapport-executif",
     ],
     "recherche-juridique-fr-avancee": [
+        "legal-fr-runtime",
+        "workflow-playbooks",
+        "source-ledger",
+        "review-queue",
         "confidentialite-donnees",
         "quality-gates-juridiques",
         "openlegi-recherche",

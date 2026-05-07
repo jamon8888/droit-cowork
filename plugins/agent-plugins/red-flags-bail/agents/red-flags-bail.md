@@ -44,4 +44,4 @@ Every external-facing output is a draft for professional review and must include
 
 ## Skills this agent uses
 
-`confidentialite-donnees` | `quality-gates-juridiques` | `statut-baux-commerciaux` | `loi-pinel-baux` | `clauses-non-standard` | `fiscalite-immobiliere` | `red-flags-juridiques` | `openlegi-recherche` | `rapport-executif` | `tableau-consolide`
+`legal-fr-runtime` | `workflow-playbooks` | `source-ledger` | `review-queue` | `confidentialite-donnees` | `quality-gates-juridiques` | `statut-baux-commerciaux` | `loi-pinel-baux` | `clauses-non-standard` | `fiscalite-immobiliere` | `red-flags-juridiques` | `openlegi-recherche` | `rapport-executif` | `tableau-consolide`

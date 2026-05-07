@@ -10,6 +10,8 @@ allowed-tools: Read, Write, Glob, Task
 
 Workflow cible: `jurisprudence-multilingue`.
 
+Skill runtime obligatoire: `legal-fr-runtime`.
+
 Schemas requis:
 - `plugins/vertical-plugins/legal-fr/schemas/common/document-intake.schema.json`
 - `plugins/vertical-plugins/legal-fr/schemas/common/source-citation.schema.json`

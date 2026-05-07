@@ -115,7 +115,21 @@ plugins/vertical-plugins/legal-fr/
       workflow-dd-ma/
         run.schema.json
         deliverables.schema.json
-      ...
+      workflow-audit-rh/
+        run.schema.json
+        deliverables.schema.json
+      workflow-preparation-audience/
+        run.schema.json
+        deliverables.schema.json
+      workflow-audit-baux/
+        run.schema.json
+        deliverables.schema.json
+      workflow-conformite-fournisseurs/
+        run.schema.json
+        deliverables.schema.json
+      workflow-recherche-source-first/
+        run.schema.json
+        deliverables.schema.json
 ```
 
 Agent plugins stay self-contained. If an agent prompt references `workflow-playbooks`, `source-ledger`, or `review-queue`, the corresponding skill directories must be bundled into that agent plugin.
@@ -152,7 +166,7 @@ Skills hold durable reusable behavior.
 Commands are the Cowork user entry points.
 
 - `workflow:init`: create a workflow run from a playbook and intake.
-- `workflow:run`: execute the next workflow stage or full allowed flow.
+- `workflow:run`: execute exactly one next workflow stage by default. It may run full execution only with an explicit `--full` argument and must stop when intake, required documents, citations, source ledger, or human validation gates are incomplete.
 - `workflow:review`: surface findings requiring human validation.
 - `workflow:export`: generate final draft deliverables from validated or partially validated state.
 - `workflow:eval`: run workflow-specific sample cases and compare expected fields.
@@ -175,6 +189,8 @@ Every V2 workflow playbook should use this structure:
 
 ```markdown
 ---
+schema_version: 2.0.0
+playbook_id: workflow-dd-ma
 name: workflow-dd-ma
 version: 2.0.0
 workflow_type: due-diligence
@@ -186,40 +202,40 @@ status: draft
 # Workflow - Due Diligence M&A FR
 
 ## Intake
-| Champ | Question | Requis | Exemple |
-|---|---|---|---|
-
-## Documents Requis
-| Document | Obligatoire | Bloquant si absent | Notes |
-|---|---|---|---|
-
-## Sources Autorisees
-| Source | Usage | Priorite | Statut |
-|---|---|---|---|
-
-## Agents Et Skills
-| Etape | Agent/skill | Role | Sortie attendue |
-|---|---|---|---|
-
-## Etapes Workflow
-| Ordre | Etape | Entree | Sortie | Gate |
+| intake_id | Champ | Question | Requis | Exemple |
 |---|---|---|---|---|
 
+## Documents Requis
+| document_id | Document | Obligatoire | Bloquant si absent | Notes |
+|---|---|---|---|---|
+
+## Sources Autorisees
+| source_rule_id | Source | Usage | Priorite | Statut |
+|---|---|---|---|---|
+
+## Agents Et Skills
+| assignment_id | Etape | Agent/skill | Role | Sortie attendue |
+|---|---|---|---|---|
+
+## Etapes Workflow
+| step_id | Ordre | Etape | Entree | Sortie | quality_gate_id |
+|---|---|---|---|---|---|
+
 ## Tableau Principal
-| Colonne | Description | Source requise | Confiance minimale |
-|---|---|---|---|
+| column_id | Colonne | Description | Source requise | Confiance minimale |
+|---|---|---|---|---|
 
 ## Red Flags
-| ID | Pattern | Gravite | Action praticien |
+| rule_id | Pattern | Gravite | Action praticien |
 |---|---|---|---|
 
 ## Quality Gates
-| Gate | Critere | Echec si |
+| quality_gate_id | Critere | Echec si |
 |---|---|---|
 
 ## Livrables
-| Livrable | Format | Audience | Condition |
-|---|---|---|---|
+| deliverable_id | Livrable | Format | Audience | Condition |
+|---|---|---|---|---|
 
 ## Validation Humaine
 | Element | Reviewer | Statut attendu |
@@ -232,16 +248,28 @@ status: draft
 flowchart TD
   A["workflow:init"] --> B["Intake utilisateur"]
   B --> C["Inventaire documents"]
+  B --> BR["Intake remediation"]
   C --> D["Selection playbook"]
+  C --> M["Missing required documents"]
   D --> E["Extraction / analyse par skills et agents"]
+  E --> L["Low confidence extraction"]
   E --> F["Source ledger"]
+  F --> S["Official source not found"]
   F --> G["Review queue"]
+  G --> Q["Quality gate failed"]
   G --> H["Validation humaine"]
+  H --> R["Human review rejected"]
   H --> I["workflow:export"]
   I --> J["Livrables draft"]
+  M --> BR
+  L --> BR
+  S --> BR
+  Q --> BR
+  R --> BR
 ```
 
 The lifecycle is implemented by command instructions and skills, not by a separate application server.
+Failure states do not produce polished external deliverables. They write a blocking review item, preserve the source ledger, and return to Intake remediation or human review.
 
 ## Initial Workflow Packs
 
@@ -401,15 +429,14 @@ No plugin-root `CLAUDE.md` is required for runtime behavior. Root and plugin `CL
 7. Regenerate or manually sync agent plugin skill bundles.
 8. Run deterministic validations and evals.
 
-## Open Questions
+## Decisions
 
-- Whether workflow playbooks should be installed only in the `legal-fr` vertical or duplicated into each agent plugin as references.
-- Whether `workflow:run` should always run one stage at a time or allow a full run when all required intake and documents are present.
-- Whether commercial bundles should be represented as marketplace plugin groups or documented install recipes.
+- Keep source workflow playbooks in `legal-fr`.
+- Bundle only shared workflow skills into agent plugins that reference them.
+- Run one stage by default; full execution requires explicit `--full` and all gates must pass.
+- Document commercial bundles as install recipes first, not marketplace mechanics.
 
-Recommended default:
+## Future Decisions
 
-- Keep source playbooks in `legal-fr`.
-- Bundle only the shared workflow skills into agent plugins.
-- Let commands run one stage by default and support full execution only when the command text explicitly permits it.
-- Represent commercial bundles as documentation first, not marketplace mechanics.
+- Whether marketplace grouping is useful after the documentation recipes are validated by users.
+- Whether selected high-volume workflow runs need a thin local runner later; this phase remains native plugin-only.

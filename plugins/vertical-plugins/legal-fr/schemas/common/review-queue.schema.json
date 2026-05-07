@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR review queue item",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "review_item_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "playbook_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "finding_id": {
+      "type": "string"
+    },
+    "quality_gate_id": {
+      "type": "string"
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "blocking",
+        "major",
+        "minor",
+        "info"
+      ]
+    },
+    "owner_role": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "blocked",
+        "validated",
+        "rejected"
+      ]
+    },
+    "human_validation": {
+      "$ref": "human-validation.schema.json"
+    }
+  },
+  "required": [
+    "review_item_id",
+    "playbook_id",
+    "run_id",
+    "finding_id",
+    "quality_gate_id",
+    "severity",
+    "owner_role",
+    "action",
+    "status",
+    "human_validation"
+  ]
+}

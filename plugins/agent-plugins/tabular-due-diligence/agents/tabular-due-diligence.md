@@ -45,4 +45,4 @@ Every external-facing output is a draft for professional review and must include
 
 ## Skills this agent uses
 
-`confidentialite-donnees` | `quality-gates-juridiques` | `tabular-review` | `format-json-intermediaire` | `lecture-playbook` | `scoring-playbook` | `tabular-extraction` | `droit-cession-fr` | `consolidation-rapport` | `red-flags-juridiques` | `openlegi-recherche` | `exa-recherche-juridique` | `tableau-consolide` | `rapport-executif`
+`legal-fr-runtime` | `workflow-playbooks` | `source-ledger` | `review-queue` | `confidentialite-donnees` | `quality-gates-juridiques` | `tabular-review` | `format-json-intermediaire` | `lecture-playbook` | `scoring-playbook` | `tabular-extraction` | `droit-cession-fr` | `consolidation-rapport` | `red-flags-juridiques` | `openlegi-recherche` | `exa-recherche-juridique` | `tableau-consolide` | `rapport-executif`

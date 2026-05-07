@@ -1,6 +1,6 @@
-# Legal-FR Runtime Instructions
+# Legal-FR Repository Notes
 
-Use these instructions for Legal-FR cabinet workflows.
+This file is a repository-readable mirror. Claude plugin runtime does not load plugin-root `CLAUDE.md`; production rules live in the `legal-fr-runtime` skill and in command/agent instructions.
 
 ## Required Output Posture
 

@@ -12,6 +12,10 @@ AUTHOR = {"name": "Hacienda.diy"}
 
 
 SKILLS = {
+    "legal-fr-runtime": "Regles runtime obligatoires Legal-FR pour sorties draft, sources, Parallel CLI, JSON, audit trail et quality gates.",
+    "workflow-playbooks": "Execution des playbooks workflow V2 avec identifiants stables, reprises stage-by-stage, gates et livrables.",
+    "source-ledger": "Registre de sources pour tracer source officielle, secondaire, web, not_found, extrait, outil et confiance.",
+    "review-queue": "File de validation humaine pour bloquer, corriger, rejeter ou approuver les findings et livrables juridiques.",
     "confidentialite-donnees": "Minimisation des donnees, secret professionnel, prudence sur donnees personnelles dans les sorties.",
     "quality-gates-juridiques": "Controle DRAFT, incertitudes, sources, coherence et validation professionnelle requise.",
     "format-json-intermediaire": "Schema JSON commun pour extractions batch, scores, flags et confiance.",
@@ -116,6 +120,13 @@ SKILL_RED_FLAGS = {
 
 
 COMMANDS = {
+    "workflow": {
+        "init": "Initialiser un run workflow Legal-FR depuis un playbook V2.",
+        "run": "Executer la prochaine etape d'un workflow Legal-FR ou un full-run explicite.",
+        "review": "Ouvrir et traiter la file de validation humaine du workflow.",
+        "export": "Exporter les livrables valides, tableaux et audit trail.",
+        "eval": "Evaluer un workflow contre fixtures, schemas et gates metier.",
+    },
     "conformite": {
         "verifier": "Verifier un document contre un playbook cabinet.",
         "creer-playbook": "Creer un playbook a partir d'un brief ou document de reference.",
@@ -251,6 +262,11 @@ WORKFLOWS = {
         "output": "RECHERCHE-JURIDIQUE-FR-[sujet]-[YYYY-MM-DD].md",
     },
 }
+
+SHARED_WORKFLOW_SKILLS = ["legal-fr-runtime", "workflow-playbooks", "source-ledger", "review-queue"]
+
+for meta in WORKFLOWS.values():
+    meta["skills"] = [*SHARED_WORKFLOW_SKILLS, *meta["skills"]]
 
 
 JSON_SCHEMA_DRAFT = "https://json-schema.org/draft/2020-12/schema"
@@ -626,6 +642,177 @@ def playbook_text(filename: str, definition: dict) -> str:
 """
 
 
+WORKFLOW_PACKS = {
+    "workflow-dd-ma": {
+        "title": "Workflow - Due Diligence M&A FR",
+        "workflow_type": "due-diligence",
+        "primary_agent": "tabular-due-diligence",
+        "domain": "transactionnel",
+        "table": "Tableau DD par document, red flag, source et score",
+        "deliverables": ["TABLEAU-DD", "RAPPORT-EXECUTIF-DD", "REVIEW-QUEUE", "SOURCE-LEDGER"],
+    },
+    "workflow-audit-rh": {
+        "title": "Workflow - Audit RH FR",
+        "workflow_type": "audit-rh",
+        "primary_agent": "revue-contrats-travail",
+        "domain": "social",
+        "table": "Tableau RH par contrat, CCN, remuneration, clauses sensibles et priorite",
+        "deliverables": ["TABLEAU-RH", "RAPPORT-AUDIT-RH", "REVIEW-QUEUE", "SOURCE-LEDGER"],
+    },
+    "workflow-preparation-audience": {
+        "title": "Workflow - Preparation Audience FR",
+        "workflow_type": "contentieux",
+        "primary_agent": "chronologie-contentieux",
+        "domain": "contentieux",
+        "table": "Chronologie par date, piece, acte, delai, source et alerte",
+        "deliverables": ["CHRONOLOGIE", "FICHE-AUDIENCE", "REVIEW-QUEUE", "SOURCE-LEDGER"],
+    },
+    "workflow-audit-baux": {
+        "title": "Workflow - Audit Baux FR",
+        "workflow_type": "immobilier",
+        "primary_agent": "red-flags-bail",
+        "domain": "immobilier",
+        "table": "Tableau baux par actif, loyer, indexation, echeance, red flag et action",
+        "deliverables": ["TABLEAU-BAUX", "RAPPORT-RED-FLAGS-BAUX", "REVIEW-QUEUE", "SOURCE-LEDGER"],
+    },
+    "workflow-conformite-fournisseurs": {
+        "title": "Workflow - Conformite Fournisseurs FR",
+        "workflow_type": "achats",
+        "primary_agent": "analyse-contrats-fournisseurs",
+        "domain": "contractuel-achats",
+        "table": "Tableau fournisseurs par terme cle, risque LME, echeance et action",
+        "deliverables": ["TABLEAU-FOURNISSEURS", "RAPPORT-CONFORMITE-FOURNISSEURS", "REVIEW-QUEUE", "SOURCE-LEDGER"],
+    },
+    "workflow-recherche-source-first": {
+        "title": "Workflow - Recherche Source-First FR",
+        "workflow_type": "recherche",
+        "primary_agent": "recherche-juridique-fr-avancee",
+        "domain": "recherche-juridique-fr",
+        "table": "Tableau sources par question, statut, extrait, outil, confiance et usage",
+        "deliverables": ["NOTE-RECHERCHE", "SOURCE-LEDGER", "REVIEW-QUEUE", "BIBLIOGRAPHIE"],
+    },
+}
+
+
+def workflow_playbook_text(slug: str, definition: dict) -> str:
+    deliverable_rows = "\n".join(
+        f"| deliverable_id:{slug}-deliv-{index:02d} | {deliverable} | Markdown + JSON | blocked_until_validated |"
+        for index, deliverable in enumerate(definition["deliverables"], start=1)
+    )
+    return f"""---
+schema_version: 2.0.0
+playbook_id: {slug}
+name: {slug}
+version: 2.0.0
+workflow_type: {definition["workflow_type"]}
+jurisdiction: FR
+domain: {definition["domain"]}
+primary_agent: {definition["primary_agent"]}
+status: draft
+draft_notice: DRAFT - Validation professionnelle requise
+---
+
+# {definition["title"]}
+
+## Intake
+
+| intake_id | Champ | Obligatoire | Blocage si absent |
+| --- | --- | --- | --- |
+| intake_id:{slug}-scope | Question, objectif, position client et livrable attendu | oui | intake_remediation |
+| intake_id:{slug}-matter | Domaine, juridiction FR, periode et parties concernees | oui | intake_remediation |
+| intake_id:{slug}-risk | Niveau de risque, urgence, usage interne/externe | oui | intake_remediation |
+
+## Documents Requis
+
+| document_id | Document | Usage | Failure state |
+| --- | --- | --- | --- |
+| document_id:{slug}-corpus | Corpus principal ou dossier client | extraction | missing_document |
+| document_id:{slug}-brief | Brief utilisateur, hypothese ou instruction cabinet | cadrage | missing_document |
+| document_id:{slug}-reference | Playbook ou standard cabinet applicable | controle | missing_document |
+
+## Sources Autorisees
+
+| source_rule_id | Ordre | Source | Usage | Failure state |
+| --- | --- | --- | --- | --- |
+| source_rule_id:{slug}-official | 1 | OpenLegi / source officielle FR ou UE | droit positif et conclusion critique | official_source_not_found |
+| source_rule_id:{slug}-public | 2 | Exa / Parallel CLI public web avec JSON | contexte, recherche large, enrichment | low_confidence |
+| source_rule_id:{slug}-manual | 3 | Source fournie par le professionnel | dossier, doctrine, cabinet | human_review_required |
+
+## Agents Et Skills
+
+| assignment_id | Agent | Skills obligatoires | Sortie |
+| --- | --- | --- | --- |
+| assignment_id:{slug}-orchestrator | {definition["primary_agent"]} | legal-fr-runtime, workflow-playbooks, source-ledger, review-queue | workflow_run |
+| assignment_id:{slug}-source | source-verifier | source-ledger, citation-juridique, openlegi-recherche | source_ledger |
+| assignment_id:{slug}-review | legal-qa-reviewer | review-queue, quality-gates-juridiques | review_queue |
+
+## Etapes Workflow
+
+| step_id | Etape | Entree | Sortie | quality_gate_id | Stop condition |
+| --- | --- | --- | --- | --- | --- |
+| step_id:{slug}-01-intake | Intake strict et inventaire | brief + corpus | workflow_run.schema.json | quality_gate_id:{slug}-intake | missing_document |
+| step_id:{slug}-02-extract | Extraction JSON schema-backed | corpus | extraction tables | quality_gate_id:{slug}-schema | schema_invalid |
+| step_id:{slug}-03-source | Verification source-ledger | findings | source-ledger.schema.json | quality_gate_id:{slug}-sources | official_source_not_found |
+| step_id:{slug}-04-risk | Red flags, scoring, priorite | findings + sources | review_queue.schema.json | quality_gate_id:{slug}-risk | low_confidence |
+| step_id:{slug}-05-review | Validation humaine | review queue | decisions | quality_gate_id:{slug}-human | human_review_rejected |
+| step_id:{slug}-06-export | Export livrables | decisions validees | deliverables.schema.json | quality_gate_id:{slug}-export | blocked_until_validated |
+
+## Tableau Principal
+
+| column_id | Colonne | Source | Regle |
+| --- | --- | --- | --- |
+| column_id:{slug}-document | Document / piece / question | document_id | Toujours renseigne |
+| column_id:{slug}-finding | Finding ou terme extrait | extraction JSON | Ne pas deduire si absent |
+| column_id:{slug}-source | Source et source_status | source-ledger | Official si conclusion critique |
+| column_id:{slug}-risk | Risque, criticite, action | risk-score | Score justifie |
+| column_id:{slug}-review | Validation humaine | review-queue | Bloquant avant usage externe |
+
+## Red Flags
+
+| rule_id | Red flag | Niveau | Action |
+| --- | --- | --- | --- |
+| rule_id:{slug}-rf-001 | Source officielle absente pour conclusion critique | blocking | stop et chercher source officielle |
+| rule_id:{slug}-rf-002 | Confiance inferieure a 0.70 | major | review_queue obligatoire |
+| rule_id:{slug}-rf-003 | Document manquant ou illisible | major | remediation documentaire |
+| rule_id:{slug}-rf-004 | Sortie externe sans validation humaine | blocking | bloquer export |
+
+## Quality Gates
+
+| quality_gate_id | Controle | Critere de passage | Failure state |
+| --- | --- | --- | --- |
+| quality_gate_id:{slug}-intake | Intake complet | Tous les intake_id requis remplis | intake_remediation |
+| quality_gate_id:{slug}-schema | Schema valide | workflow-run, source-ledger, review-queue valides | schema_invalid |
+| quality_gate_id:{slug}-sources | Sources citees | source_status explicite, official si critique | official_source_not_found |
+| quality_gate_id:{slug}-risk | Risques controles | score, confiance, action et owner presents | low_confidence |
+| quality_gate_id:{slug}-human | Validation humaine | decision validee ou rejet motive | human_review_rejected |
+| quality_gate_id:{slug}-export | Export autorise | DRAFT present et validation professionnelle documentee | blocked_until_validated |
+
+## Livrables
+
+| deliverable_id | Livrable | Format | Etat initial |
+| --- | --- | --- | --- |
+{deliverable_rows}
+
+## Validation Humaine
+
+- Toute sortie reste `DRAFT - Validation professionnelle requise`.
+- Le full-run ne doit jamais contourner `review-queue`.
+- Une decision `human_review_rejected` renvoie vers l'etape corrigee, pas vers l'export.
+- Le tableau principal est la source de verite operationnelle; le rapport narratif est derive du JSON et du source-ledger.
+
+## Failure States
+
+| Etat | Signification | Remediation |
+| --- | --- | --- |
+| missing_document | Piece ou brief absent | Demander document_id manquant |
+| official_source_not_found | Source officielle introuvable | Marquer A VERIFIER et bloquer conclusion critique |
+| low_confidence | Confiance insuffisante | Ajouter item review_queue |
+| schema_invalid | JSON non conforme | Reprendre l'etape schema |
+| quality_gate_failed | Gate non passe | Stop, lister les blocages |
+| human_review_rejected | Reviewer refuse | Corriger puis reprendre l'etape concernee |
+"""
+
+
 PLAYBOOKS = {
     "README.md": """# Playbooks Legal-FR
 
@@ -644,6 +831,7 @@ Un playbook operationnel contient les sections `## Metadata`, `## Termes a extra
 Les champs obligatoires sont `source_status`, `validated_by_human`, `confidence` et `DRAFT - Validation professionnelle requise`.
 """,
     **{filename: playbook_text(filename, definition) for filename, definition in PLAYBOOK_DEFINITIONS.items()},
+    **{f"workflows/{slug}.md": workflow_playbook_text(slug, definition) for slug, definition in WORKFLOW_PACKS.items()},
 }
 
 
@@ -696,7 +884,82 @@ def workflow_for_family(family: str) -> str:
     return COMMAND_FAMILY_TO_WORKFLOW[family]
 
 
+def workflow_command_text(command: str, description: str) -> str:
+    run_guard = ""
+    if command == "run":
+        run_guard = """
+## Execution Guard
+
+- execute exactly one next workflow stage by default.
+- `--full` is the only accepted signal for a complete flow execution.
+- Even with `--full`, stop on missing intake, missing document, source officielle introuvable, low confidence, schema invalid, quality gate failure or rejected human validation.
+- Never skip `review-queue`; never export as validated unless human validation is explicitly present in the run state.
+"""
+
+    return f"""---
+name: workflow:{command}
+description: {description}
+argument-hint: "[playbook|run-id] [--full optionnel]"
+allowed-tools: Read, Write, Glob, Task
+---
+
+# workflow:{command}
+
+## Runtime Skills
+
+- `legal-fr-runtime`
+- `workflow-playbooks`
+- `source-ledger`
+- `review-queue`
+
+## Scope
+
+This command operates the native Legal-FR workflow layer for Claude Desktop/Cowork plugins. It consumes Playbook V2 files from `plugins/vertical-plugins/legal-fr/playbooks/workflows/` and writes schema-backed workflow state before any Markdown deliverable.
+
+## Schemas
+
+- `plugins/vertical-plugins/legal-fr/schemas/common/workflow-run.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/common/source-ledger.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/common/review-queue.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/common/audit-trail.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/common/human-validation.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/workflows/<playbook_id>/run.schema.json`
+- `plugins/vertical-plugins/legal-fr/schemas/workflows/<playbook_id>/deliverables.schema.json`
+
+## Workflow
+
+1. Load the selected Playbook V2 and verify `schema_version`, `playbook_id`, stable ids and required quality gates.
+2. Create or read the `workflow-run` state, then append an audit trail entry for every material transition.
+3. Update the source-ledger for each finding with source status, checked tool, excerpt, confidence and source gaps.
+4. Update the review-queue for missing documents, low confidence, source gaps, schema errors and human validation decisions.
+5. Apply the quality gate before moving to the next stage or before export.
+6. Every generated deliverable includes `DRAFT - Validation professionnelle requise`.
+
+{run_guard}
+## Stop Conditions
+
+Stop and return blocking issues when intake is incomplete, a required document is missing, a critical official source cannot be found, confidence is too low, a schema is invalid, a quality gate fails, or human review rejects a finding.
+
+## Local Runner
+
+Use the local runner for executable state transitions:
+
+```bash
+python scripts/legal_fr_workflow.py {command} --help
+```
+
+The runner validates `workflow-run.json`, `source-ledger.json`, `review-queue.json`, `audit-trail.json` and exported deliverables against the local Legal-FR schemas before each transition.
+
+## Output Contract
+
+Return a short operational summary plus paths to JSON state, source-ledger, review-queue, audit trail and draft deliverables. Do not produce client-ready wording unless the playbook state records professional validation.
+"""
+
+
 def command_text(family: str, command: str, description: str) -> str:
+    if family == "workflow":
+        return workflow_command_text(command, description)
+
     workflow = workflow_for_family(family)
     if family == "recherche":
         if command.startswith("task-"):
@@ -714,6 +977,7 @@ allowed-tools: Read, Write, Glob, Task, Bash(parallel-cli:*), Bash(python:*)
 
 ## Regles
 
+- Skill runtime obligatoire: `legal-fr-runtime`.
 - DRAFT - Validation professionnelle requise.
 - Perimetre: droit francais uniquement.
 - OpenLegi avant Parallel pour droit positif francais.
@@ -757,6 +1021,8 @@ allowed-tools: Read, Write, Glob, Task
 
 Workflow cible: `{workflow}`.
 
+Skill runtime obligatoire: `legal-fr-runtime`.
+
 Schemas requis:
 - `plugins/vertical-plugins/legal-fr/schemas/common/document-intake.schema.json`
 - `plugins/vertical-plugins/legal-fr/schemas/common/source-citation.schema.json`
@@ -775,7 +1041,120 @@ Schemas requis:
 """
 
 
+def runtime_skill_text(description: str) -> str:
+    return f"""---
+name: legal-fr-runtime
+description: {description}
+---
+
+# legal-fr-runtime
+
+## Purpose
+
+Regles runtime obligatoires pour les plugins Legal-FR dans Claude Desktop/Cowork. Ce skill duplique les instructions critiques qui ne doivent pas rester seulement dans un `CLAUDE.md` de plugin.
+
+## Workflow
+
+1. Classer la demande, le domaine juridique, le profil utilisateur, le corpus et le livrable attendu.
+2. Produire une extraction JSON schema-backed avant tout Markdown lorsque le workflow dispose d'un schema.
+3. Appliquer l'ordre des sources: OpenLegi avant Exa pour le droit positif francais, puis Exa pour contexte secondaire et recherche large.
+4. Pour la recherche avancee, utiliser OpenLegi avant Parallel; utiliser Parallel CLI uniquement avec sortie JSON (`--json`).
+5. Construire un `audit_trail` pour chaque finding materiel avec source, extrait, statut, confiance et validation humaine.
+6. Appliquer le quality gate avant sortie externe. Si un gate echoue, stop et retourner les blocages au lieu de produire un livrable poli.
+
+## Output posture
+
+- Tout rapport, memo, tableau, note, email ou livrable client contient `DRAFT - Validation professionnelle requise`.
+- La validation par un avocat, juriste senior ou professionnel qualifie reste obligatoire avant tout usage externe.
+- Ne jamais presenter une conclusion juridique comme definitive si la source, la date, la qualification ou le dossier complet manque.
+- Les incertitudes critiques sont marquees `A VERIFIER`.
+
+## Source order
+
+- OpenLegi avant Exa pour toute affirmation de droit positif francais.
+- OpenLegi avant Parallel pour toute recherche juridique FR avancee.
+- Exa sert au contexte secondaire, a la decouverte de sources et aux verifications larges.
+- Parallel CLI sert aux recherches web publiques, extractions, enrichissements et veilles; toujours ajouter `--json`.
+- Ne jamais afficher, journaliser ou reconstituer `PARALLEL_API_KEY`.
+
+## JSON and audit trail
+
+- Valider les champs contre le schema Legal-FR applicable quand il existe.
+- Le JSON est la source de verite; le Markdown est seulement la presentation.
+- Ne pas masquer les pages illisibles, documents manquants, citations incompletes ou sources introuvables.
+- Chaque finding materiel conserve `source_status`, `confidence`, `audit_trail` et `validated_by_human: false` tant que la validation n'est pas effective.
+
+## Quality gate
+
+Bloquer la sortie externe si l'un de ces points manque:
+
+- mention `DRAFT - Validation professionnelle requise`;
+- schema requis ou champs obligatoires;
+- source officielle pour une conclusion critique quand elle existe;
+- mention `A VERIFIER` pour point incertain;
+- `source_status`, `confidence` et `audit_trail`;
+- metadata de validation humaine.
+
+## Output Contract
+
+- Markdown pour les rapports et tableaux finaux.
+- JSON pour les extractions intermediaires et la consolidation.
+- Blocage explicite avec liste des gates echoues quand les conditions de livraison ne sont pas remplies.
+"""
+
+
+def workflow_support_skill_text(name: str, description: str) -> str:
+    focus = {
+        "workflow-playbooks": """- Lire uniquement des playbooks `schema_version: 2.0.0`.
+- Verifier les identifiants stables: `playbook_id`, `intake_id`, `document_id`, `source_rule_id`, `assignment_id`, `step_id`, `rule_id`, `quality_gate_id`, `deliverable_id`.
+- Executer stage-by-stage par defaut; un full-run exige un argument explicite `--full`.
+- Stopper sur intake incomplet, source officielle introuvable, confidence basse, schema invalide, gate echoue ou validation humaine rejetee.""",
+        "source-ledger": """- Maintenir une ligne par source exploitee ou manquante.
+- Distinguer `official`, `secondary`, `web`, `unverified` et `not_found`.
+- Conserver extrait, outil utilise, date de verification, confiance et finding lie.
+- Bloquer les conclusions critiques quand aucune source officielle disponible n'est documentee.""",
+        "review-queue": """- Creer une entree pour chaque gate echoue, source manquante, confidence basse, document illisible ou decision humaine attendue.
+- Distinguer `open`, `blocked`, `validated` et `rejected`.
+- Interdire l'export valide tant que des items bloquants restent ouverts.
+- Renvoyer les rejets humains vers l'etape de remediation concernee.""",
+    }[name]
+    return f"""---
+name: {name}
+description: {description}
+---
+
+# {name}
+
+## Purpose
+
+{description}
+
+## Workflow
+
+1. Lire l'etat `workflow-run` et le playbook V2 avant d'agir.
+2. Ne jamais avancer un workflow sans schema, audit trail, source-ledger et review-queue coherents.
+3. Appliquer les quality gates avant chaque transition de stage.
+4. Maintenir `DRAFT - Validation professionnelle requise` dans tout livrable.
+5. Retourner les blocages au lieu de produire une synthese externe lorsque la validation humaine ou les sources manquent.
+
+## Specialization
+
+{focus}
+
+## Output Contract
+
+- JSON stable pour etat machine.
+- Markdown uniquement comme vue lisible derivee du JSON.
+- `audit_trail`, `source_status`, `confidence`, `quality_gate_id` et `validated_by_human` visibles dans les sorties de controle.
+"""
+
+
 def skill_text(name: str, description: str) -> str:
+    if name == "legal-fr-runtime":
+        return runtime_skill_text(description)
+    if name in {"workflow-playbooks", "source-ledger", "review-queue"}:
+        return workflow_support_skill_text(name, description)
+
     red_flags = SKILL_RED_FLAGS.get(name, [])
     red_flags_section = ""
     if red_flags:
@@ -954,6 +1333,105 @@ def common_schemas() -> dict[str, dict]:
             },
             ["validated_by_human", "validator_role", "validation_required", "validation_reason"],
         ),
+        "workflow-run": object_schema(
+            "Legal-FR workflow run",
+            {
+                "run_id": {"type": "string", "minLength": 1},
+                "schema_version": {"const": "2.0.0"},
+                "playbook_id": {"type": "string", "minLength": 1},
+                "status": string_enum(["initialized", "running", "blocked", "ready_for_review", "validated", "exported"]),
+                "current_stage": {"type": "string"},
+                "full_run_requested": {"type": "boolean"},
+                "intake": {"type": "object"},
+                "document_inventory": {"type": "array", "items": {"type": "string"}},
+                "audit_trail": {"type": "array", "items": {"$ref": "audit-trail.schema.json"}},
+                "quality_gate_status": {"type": "string"},
+                "failure_state": string_enum(
+                    [
+                        "none",
+                        "intake_remediation",
+                        "missing_document",
+                        "official_source_not_found",
+                        "low_confidence",
+                        "schema_invalid",
+                        "quality_gate_failed",
+                        "human_review_rejected",
+                        "blocked_until_validated",
+                    ]
+                ),
+                "blocked_reason": {"type": "string"},
+                "remediation_required": {"type": "boolean"},
+            },
+            [
+                "run_id",
+                "schema_version",
+                "playbook_id",
+                "status",
+                "current_stage",
+                "full_run_requested",
+                "intake",
+                "document_inventory",
+                "audit_trail",
+                "quality_gate_status",
+                "failure_state",
+                "blocked_reason",
+                "remediation_required",
+            ],
+        ),
+        "source-ledger": object_schema(
+            "Legal-FR source ledger entry",
+            {
+                "ledger_id": {"type": "string", "minLength": 1},
+                "playbook_id": {"type": "string"},
+                "run_id": {"type": "string"},
+                "finding_id": {"type": "string"},
+                "source_status": string_enum(["official", "secondary", "web", "unverified", "not_found"]),
+                "source_locator": {"type": "string"},
+                "source_excerpt": {"type": "string"},
+                "checked_with": string_enum(["openlegi", "exa", "parallel-cli", "parallel-task-api", "manual", "none"]),
+                "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                "gap_reason": {"type": "string"},
+            },
+            [
+                "ledger_id",
+                "playbook_id",
+                "run_id",
+                "finding_id",
+                "source_status",
+                "source_locator",
+                "source_excerpt",
+                "checked_with",
+                "confidence",
+                "gap_reason",
+            ],
+        ),
+        "review-queue": object_schema(
+            "Legal-FR review queue item",
+            {
+                "review_item_id": {"type": "string", "minLength": 1},
+                "playbook_id": {"type": "string"},
+                "run_id": {"type": "string"},
+                "finding_id": {"type": "string"},
+                "quality_gate_id": {"type": "string"},
+                "severity": string_enum(["blocking", "major", "minor", "info"]),
+                "owner_role": {"type": "string"},
+                "action": {"type": "string"},
+                "status": string_enum(["open", "blocked", "validated", "rejected"]),
+                "human_validation": {"$ref": "human-validation.schema.json"},
+            },
+            [
+                "review_item_id",
+                "playbook_id",
+                "run_id",
+                "finding_id",
+                "quality_gate_id",
+                "severity",
+                "owner_role",
+                "action",
+                "status",
+                "human_validation",
+            ],
+        ),
         "audit-trail": object_schema(
             "Legal-FR audit trail",
             {
@@ -1013,6 +1491,55 @@ def workflow_schema(workflow: str, schema_kind: str) -> dict:
             },
         },
         ["workflow", "document_intake", "findings", "audit_trail", "human_validation", "draft_notice", "coverage"],
+    )
+
+
+def workflow_pack_schema(playbook_id: str, schema_kind: str) -> dict:
+    return object_schema(
+        f"Legal-FR playbook workflow {playbook_id} {schema_kind}",
+        {
+            "playbook_id": {"const": playbook_id},
+            "schema_version": {"const": "2.0.0"},
+            "workflow_run": ref("workflow-run"),
+            "source_ledger": {
+                "type": "array",
+                "items": ref("source-ledger"),
+            },
+            "review_queue": {
+                "type": "array",
+                "items": ref("review-queue"),
+            },
+            "audit_trail": {
+                "type": "array",
+                "items": ref("audit-trail"),
+            },
+            "human_validation": ref("human-validation"),
+            "deliverables": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "deliverable_id": {"type": "string"},
+                        "path": {"type": "string"},
+                        "status": string_enum(["draft", "blocked", "validated", "exported"]),
+                    },
+                    "required": ["deliverable_id", "path", "status"],
+                },
+            },
+            "draft_notice": {"const": "DRAFT - Validation professionnelle requise"},
+        },
+        [
+            "playbook_id",
+            "schema_version",
+            "workflow_run",
+            "source_ledger",
+            "review_queue",
+            "audit_trail",
+            "human_validation",
+            "deliverables",
+            "draft_notice",
+        ],
     )
 
 
@@ -1314,6 +1841,13 @@ def production_grade_files() -> None:
                 json.dumps(workflow_schema(workflow, schema_kind), indent=2, ensure_ascii=False) + "\n",
             )
 
+    for playbook_id in WORKFLOW_PACKS:
+        for schema_kind in ["run", "deliverables"]:
+            write(
+                VERTICAL / "schemas" / "workflows" / playbook_id / f"{schema_kind}.schema.json",
+                json.dumps(workflow_pack_schema(playbook_id, schema_kind), indent=2, ensure_ascii=False) + "\n",
+            )
+
     write(VERTICAL / "audit" / "README.md", audit_readme())
     write(VERTICAL / "quality-gates" / "README.md", quality_gates_readme())
 
@@ -1397,6 +1931,29 @@ Every external deliverable produced from this vertical is a draft for profession
 
 Parallel CLI is the default local/Cowork execution path for advanced French legal research. Parallel Task API is the deuxieme couche for backend production, long-running research, batch enrichment, polling, webhooks, and schema-backed outputs.
 
+## Workflow Runner
+
+The local workflow runner materializes Playbook V2 execution without network calls:
+
+```bash
+python scripts/legal_fr_workflow.py init --playbook workflow-dd-ma --matter "Acquisition PME" --objective "Audit acheteur" --document data-room/index.md --workdir .legal-fr-runs
+python scripts/legal_fr_workflow.py run --run-dir .legal-fr-runs/<run-id>
+python scripts/legal_fr_workflow.py run --run-dir .legal-fr-runs/<run-id> --full
+python scripts/legal_fr_workflow.py review --run-dir .legal-fr-runs/<run-id> --validate
+python scripts/legal_fr_workflow.py export --run-dir .legal-fr-runs/<run-id>
+python scripts/legal_fr_workflow.py eval
+```
+
+Each run directory contains:
+
+- `workflow-run.json`
+- `source-ledger.json`
+- `review-queue.json`
+- `audit-trail.json`
+- `deliverables.json` after validated export
+
+The default `run` command advances exactly one stage. `--full` is explicit and still stops on missing documents, source gaps, failed quality gates or pending human validation. The runner validates each state file against local schemas before transitions, so corrupted `workflow-run.json`, `source-ledger.json`, `review-queue.json` or `audit-trail.json` files fail closed.
+
 Local scaffold verification:
 
 ```bash
@@ -1437,9 +1994,9 @@ The connector check warns if `OPENLEGI_TOKEN` is not configured locally; that wa
     write(VERTICAL / "CHANGELOG.md", "# Changelog\n\n## 1.0.0\n\n- Creation du vertical Legal-FR et des workflows Legora-FR.\n")
     write(
         VERTICAL / "CLAUDE.md",
-        """# Legal-FR Runtime Instructions
+        """# Legal-FR Repository Notes
 
-Use these instructions for Legal-FR cabinet workflows.
+This file is a repository-readable mirror. Claude plugin runtime does not load plugin-root `CLAUDE.md`; production rules live in the `legal-fr-runtime` skill and in command/agent instructions.
 
 ## Required Output Posture
 
@@ -1602,7 +2159,7 @@ def marketplace() -> None:
     entries["legal-fr"] = {
         "name": "legal-fr",
         "source": "./plugins/vertical-plugins/legal-fr",
-        "description": "Socle juridique francais: playbooks, Tabular Review, OpenLegi, Exa et skills metier.",
+        "description": "Socle juridique francais: playbooks, Tabular Review, OpenLegi, Exa, Parallel CLI et skills metier.",
     }
     for slug, meta in WORKFLOWS.items():
         entries[slug] = {

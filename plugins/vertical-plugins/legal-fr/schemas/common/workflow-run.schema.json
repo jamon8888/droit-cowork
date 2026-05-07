@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR workflow run",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "schema_version": {
+      "const": "2.0.0"
+    },
+    "playbook_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "initialized",
+        "running",
+        "blocked",
+        "ready_for_review",
+        "validated",
+        "exported"
+      ]
+    },
+    "current_stage": {
+      "type": "string"
+    },
+    "full_run_requested": {
+      "type": "boolean"
+    },
+    "intake": {
+      "type": "object"
+    },
+    "document_inventory": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "audit_trail": {
+      "type": "array",
+      "items": {
+        "$ref": "audit-trail.schema.json"
+      }
+    },
+    "quality_gate_status": {
+      "type": "string"
+    },
+    "failure_state": {
+      "type": "string",
+      "enum": [
+        "none",
+        "intake_remediation",
+        "missing_document",
+        "official_source_not_found",
+        "low_confidence",
+        "schema_invalid",
+        "quality_gate_failed",
+        "human_review_rejected",
+        "blocked_until_validated"
+      ]
+    },
+    "blocked_reason": {
+      "type": "string"
+    },
+    "remediation_required": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "run_id",
+    "schema_version",
+    "playbook_id",
+    "status",
+    "current_stage",
+    "full_run_requested",
+    "intake",
+    "document_inventory",
+    "audit_trail",
+    "quality_gate_status",
+    "failure_state",
+    "blocked_reason",
+    "remediation_required"
+  ]
+}

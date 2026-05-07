@@ -44,4 +44,4 @@ Every external-facing output is a draft for professional review and must include
 
 ## Skills this agent uses
 
-`confidentialite-donnees` | `quality-gates-juridiques` | `tabular-review` | `format-json-intermediaire` | `droit-social-fr` | `conventions-collectives` | `remuneration-compliance` | `protection-vie-privee-rh` | `openlegi-recherche` | `tableau-consolide`
+`legal-fr-runtime` | `workflow-playbooks` | `source-ledger` | `review-queue` | `confidentialite-donnees` | `quality-gates-juridiques` | `tabular-review` | `format-json-intermediaire` | `droit-social-fr` | `conventions-collectives` | `remuneration-compliance` | `protection-vie-privee-rh` | `openlegi-recherche` | `tableau-consolide`

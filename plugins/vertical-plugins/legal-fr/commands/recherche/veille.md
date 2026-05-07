@@ -9,6 +9,7 @@ allowed-tools: Read, Write, Glob, Task, Bash(parallel-cli:*), Bash(python:*)
 
 ## Regles
 
+- Skill runtime obligatoire: `legal-fr-runtime`.
 - DRAFT - Validation professionnelle requise.
 - Perimetre: droit francais uniquement.
 - OpenLegi avant Parallel pour droit positif francais.

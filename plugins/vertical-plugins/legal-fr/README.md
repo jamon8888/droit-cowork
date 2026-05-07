@@ -31,6 +31,29 @@ Every external deliverable produced from this vertical is a draft for profession
 
 Parallel CLI is the default local/Cowork execution path for advanced French legal research. Parallel Task API is the deuxieme couche for backend production, long-running research, batch enrichment, polling, webhooks, and schema-backed outputs.
 
+## Workflow Runner
+
+The local workflow runner materializes Playbook V2 execution without network calls:
+
+```bash
+python scripts/legal_fr_workflow.py init --playbook workflow-dd-ma --matter "Acquisition PME" --objective "Audit acheteur" --document data-room/index.md --workdir .legal-fr-runs
+python scripts/legal_fr_workflow.py run --run-dir .legal-fr-runs/<run-id>
+python scripts/legal_fr_workflow.py run --run-dir .legal-fr-runs/<run-id> --full
+python scripts/legal_fr_workflow.py review --run-dir .legal-fr-runs/<run-id> --validate
+python scripts/legal_fr_workflow.py export --run-dir .legal-fr-runs/<run-id>
+python scripts/legal_fr_workflow.py eval
+```
+
+Each run directory contains:
+
+- `workflow-run.json`
+- `source-ledger.json`
+- `review-queue.json`
+- `audit-trail.json`
+- `deliverables.json` after validated export
+
+The default `run` command advances exactly one stage. `--full` is explicit and still stops on missing documents, source gaps, failed quality gates or pending human validation. The runner validates each state file against local schemas before transitions, so corrupted `workflow-run.json`, `source-ledger.json`, `review-queue.json` or `audit-trail.json` files fail closed.
+
 Local scaffold verification:
 
 ```bash

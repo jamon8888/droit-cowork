@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR source ledger entry",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "ledger_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "playbook_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "finding_id": {
+      "type": "string"
+    },
+    "source_status": {
+      "type": "string",
+      "enum": [
+        "official",
+        "secondary",
+        "web",
+        "unverified",
+        "not_found"
+      ]
+    },
+    "source_locator": {
+      "type": "string"
+    },
+    "source_excerpt": {
+      "type": "string"
+    },
+    "checked_with": {
+      "type": "string",
+      "enum": [
+        "openlegi",
+        "exa",
+        "parallel-cli",
+        "parallel-task-api",
+        "manual",
+        "none"
+      ]
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "gap_reason": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "ledger_id",
+    "playbook_id",
+    "run_id",
+    "finding_id",
+    "source_status",
+    "source_locator",
+    "source_excerpt",
+    "checked_with",
+    "confidence",
+    "gap_reason"
+  ]
+}

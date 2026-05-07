@@ -65,6 +65,9 @@ COMMON_SCHEMAS = [
     "finding.schema.json",
     "audit-trail.schema.json",
     "human-validation.schema.json",
+    "workflow-run.schema.json",
+    "source-ledger.schema.json",
+    "review-queue.schema.json",
 ]
 
 WORKFLOW_SCHEMAS = [
@@ -78,6 +81,17 @@ REQUIRED_QUALITY_TERMS = [
     "confidence",
     "source_status",
     "audit_trail",
+]
+
+WORKFLOW_COMMANDS = ["init", "run", "review", "export", "eval"]
+
+WORKFLOW_PLAYBOOKS = [
+    "workflow-dd-ma",
+    "workflow-audit-rh",
+    "workflow-preparation-audience",
+    "workflow-audit-baux",
+    "workflow-conformite-fournisseurs",
+    "workflow-recherche-source-first",
 ]
 
 
@@ -147,6 +161,130 @@ class LegalFrProductionGradeTest(unittest.TestCase):
                 self.assertIn("audit trail", text.lower())
                 self.assertIn("quality gate", text.lower())
                 self.assertIn("DRAFT - Validation professionnelle requise", text)
+
+    def test_runtime_rules_are_skill_backed_not_only_plugin_claude_md(self) -> None:
+        runtime_skill = LEGAL_FR / "skills" / "legal-fr-runtime" / "SKILL.md"
+        self.assertTrue(runtime_skill.is_file())
+        runtime_text = runtime_skill.read_text(encoding="utf-8")
+        for required in [
+            "OpenLegi avant Exa",
+            "OpenLegi avant Parallel",
+            "Parallel CLI",
+            "--json",
+            "PARALLEL_API_KEY",
+            "DRAFT - Validation professionnelle requise",
+            "A VERIFIER",
+            "schema",
+            "audit_trail",
+            "quality gate",
+            "stop",
+        ]:
+            with self.subTest(required=required):
+                self.assertIn(required, runtime_text)
+
+        for workflow in WORKFLOWS:
+            prompt = (AGENT_PLUGINS / workflow / "agents" / f"{workflow}.md").read_text(encoding="utf-8")
+            with self.subTest(workflow=workflow):
+                self.assertIn("legal-fr-runtime", prompt)
+
+        for command_file in sorted((LEGAL_FR / "commands").glob("*/*.md")):
+            text = command_file.read_text(encoding="utf-8")
+            with self.subTest(command=command_file.name):
+                self.assertIn("legal-fr-runtime", text)
+
+    def test_workflow_layer_is_materialized_in_plugin_components(self) -> None:
+        for command in WORKFLOW_COMMANDS:
+            command_file = LEGAL_FR / "commands" / "workflow" / f"{command}.md"
+            with self.subTest(command=command):
+                self.assertTrue(command_file.is_file())
+                text = command_file.read_text(encoding="utf-8")
+                self.assertIn("legal-fr-runtime", text)
+                self.assertIn("workflow-playbooks", text)
+                self.assertIn("source-ledger", text)
+                self.assertIn("review-queue", text)
+                self.assertIn("schema", text.lower())
+                self.assertIn("audit trail", text.lower())
+                self.assertIn("quality gate", text.lower())
+                self.assertIn("DRAFT - Validation professionnelle requise", text)
+
+        run_text = (LEGAL_FR / "commands" / "workflow" / "run.md").read_text(encoding="utf-8")
+        self.assertIn("execute exactly one next workflow stage by default", run_text)
+        self.assertIn("--full", run_text)
+        self.assertIn("stop", run_text.lower())
+
+    def test_workflow_playbooks_are_v2_and_machine_addressable(self) -> None:
+        required_sections = [
+            "## Intake",
+            "## Documents Requis",
+            "## Sources Autorisees",
+            "## Agents Et Skills",
+            "## Etapes Workflow",
+            "## Tableau Principal",
+            "## Red Flags",
+            "## Quality Gates",
+            "## Livrables",
+            "## Validation Humaine",
+        ]
+        required_ids = [
+            "schema_version",
+            "playbook_id",
+            "intake_id",
+            "document_id",
+            "source_rule_id",
+            "assignment_id",
+            "step_id",
+            "rule_id",
+            "quality_gate_id",
+            "deliverable_id",
+        ]
+        for playbook in WORKFLOW_PLAYBOOKS:
+            path = LEGAL_FR / "playbooks" / "workflows" / f"{playbook}.md"
+            text = path.read_text(encoding="utf-8")
+            with self.subTest(playbook=playbook):
+                self.assertIn(f"playbook_id: {playbook}", text)
+                self.assertIn("schema_version: 2.0.0", text)
+                for section in required_sections:
+                    self.assertIn(section, text)
+                for field in required_ids:
+                    self.assertIn(field, text)
+
+    def test_workflow_common_and_pack_schemas_exist(self) -> None:
+        for schema_name in ["workflow-run", "source-ledger", "review-queue"]:
+            schema = load_json(LEGAL_FR / "schemas" / "common" / f"{schema_name}.schema.json")
+            with self.subTest(common_schema=schema_name):
+                self.assertEqual(schema["$schema"], "https://json-schema.org/draft/2020-12/schema")
+                self.assertIn("required", schema)
+                self.assertFalse(schema["additionalProperties"])
+
+        for playbook in WORKFLOW_PLAYBOOKS:
+            workflow_root = LEGAL_FR / "schemas" / "workflows" / playbook
+            for schema_name in ["run.schema.json", "deliverables.schema.json"]:
+                schema = load_json(workflow_root / schema_name)
+                with self.subTest(playbook=playbook, schema=schema_name):
+                    self.assertEqual(schema["type"], "object")
+                    self.assertIn("playbook_id", schema["properties"])
+                    self.assertIn("source_ledger", schema["properties"])
+                    self.assertIn("review_queue", schema["properties"])
+                    self.assertIn("human_validation", schema["properties"])
+
+    def test_workflow_runner_is_documented_and_bound_to_commands(self) -> None:
+        runner = ROOT / "scripts" / "legal_fr_workflow.py"
+        self.assertTrue(runner.is_file())
+        runner_text = runner.read_text(encoding="utf-8")
+        for subcommand in ["init", "run", "review", "export", "eval"]:
+            with self.subTest(subcommand=subcommand):
+                self.assertIn(f'"{subcommand}"', runner_text)
+
+        readme = (LEGAL_FR / "README.md").read_text(encoding="utf-8")
+        self.assertIn("python scripts/legal_fr_workflow.py", readme)
+        self.assertIn("workflow-run.json", readme)
+        self.assertIn("source-ledger.json", readme)
+        self.assertIn("review-queue.json", readme)
+
+        for command in WORKFLOW_COMMANDS:
+            command_text = (LEGAL_FR / "commands" / "workflow" / f"{command}.md").read_text(encoding="utf-8")
+            with self.subTest(command=command):
+                self.assertIn("python scripts/legal_fr_workflow.py", command_text)
 
     def test_agent_prompts_reference_core_workers_and_human_validation(self) -> None:
         for workflow in WORKFLOWS:

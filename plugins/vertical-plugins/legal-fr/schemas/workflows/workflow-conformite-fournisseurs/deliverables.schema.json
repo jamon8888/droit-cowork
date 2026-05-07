@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legal-FR playbook workflow workflow-conformite-fournisseurs deliverables",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "playbook_id": {
+      "const": "workflow-conformite-fournisseurs"
+    },
+    "schema_version": {
+      "const": "2.0.0"
+    },
+    "workflow_run": {
+      "$ref": "../../common/workflow-run.schema.json"
+    },
+    "source_ledger": {
+      "type": "array",
+      "items": {
+        "$ref": "../../common/source-ledger.schema.json"
+      }
+    },
+    "review_queue": {
+      "type": "array",
+      "items": {
+        "$ref": "../../common/review-queue.schema.json"
+      }
+    },
+    "audit_trail": {
+      "type": "array",
+      "items": {
+        "$ref": "../../common/audit-trail.schema.json"
+      }
+    },
+    "human_validation": {
+      "$ref": "../../common/human-validation.schema.json"
+    },
+    "deliverables": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deliverable_id": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "draft",
+              "blocked",
+              "validated",
+              "exported"
+            ]
+          }
+        },
+        "required": [
+          "deliverable_id",
+          "path",
+          "status"
+        ]
+      }
+    },
+    "draft_notice": {
+      "const": "DRAFT - Validation professionnelle requise"
+    }
+  },
+  "required": [
+    "playbook_id",
+    "schema_version",
+    "workflow_run",
+    "source_ledger",
+    "review_queue",
+    "audit_trail",
+    "human_validation",
+    "deliverables",
+    "draft_notice"
+  ]
+}
