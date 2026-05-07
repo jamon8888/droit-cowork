@@ -2,7 +2,7 @@
   "workflow": "revue-conformite-interne",
   "case_id": "case-005",
   "case_type": "source_not_found",
-  "risk_level": "medium",
+  "expected_risk": "medium",
   "expected_source_status": "not_found",
   "expected_confidence_band": "low",
   "requires_human_validation": true,

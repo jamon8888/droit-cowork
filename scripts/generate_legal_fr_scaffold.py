@@ -607,7 +607,7 @@ def eval_metadata(workflow: str, case_id: str, case_type: str, risk_level: str) 
         "workflow": workflow,
         "case_id": case_id,
         "case_type": case_type,
-        "risk_level": risk_level,
+        "expected_risk": risk_level,
         "expected_source_status": details["source_status"],
         "expected_confidence_band": details["confidence_band"],
         "requires_human_validation": True,

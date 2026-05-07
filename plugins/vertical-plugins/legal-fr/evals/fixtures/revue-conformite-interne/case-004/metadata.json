@@ -2,7 +2,7 @@
   "workflow": "revue-conformite-interne",
   "case_id": "case-004",
   "case_type": "unreadable_or_incomplete",
-  "risk_level": "unknown",
+  "expected_risk": "unknown",
   "expected_source_status": "unverified",
   "expected_confidence_band": "unknown",
   "requires_human_validation": true,

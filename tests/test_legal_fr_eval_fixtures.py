@@ -69,7 +69,7 @@ class LegalFrEvalFixturesTest(unittest.TestCase):
                     self.assertEqual(metadata["workflow"], workflow)
                     self.assertEqual(metadata["case_id"], case_id)
                     self.assertEqual(metadata["case_type"], case_type)
-                    self.assertEqual(metadata["risk_level"], risk_level)
+                    self.assertEqual(metadata["expected_risk"], risk_level)
                     self.assertIn("expected_source_status", metadata)
                     self.assertIn("expected_confidence_band", metadata)
                     self.assertIn("requires_human_validation", metadata)

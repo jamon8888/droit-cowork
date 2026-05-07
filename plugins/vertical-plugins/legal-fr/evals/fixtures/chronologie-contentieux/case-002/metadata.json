@@ -2,7 +2,7 @@
   "workflow": "chronologie-contentieux",
   "case_id": "case-002",
   "case_type": "blocking_red_flag",
-  "risk_level": "high",
+  "expected_risk": "high",
   "expected_source_status": "official",
   "expected_confidence_band": "high",
   "requires_human_validation": true,

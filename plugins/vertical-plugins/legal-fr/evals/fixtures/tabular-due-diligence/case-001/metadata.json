@@ -2,7 +2,7 @@
   "workflow": "tabular-due-diligence",
   "case_id": "case-001",
   "case_type": "compliant",
-  "risk_level": "low",
+  "expected_risk": "low",
   "expected_source_status": "official",
   "expected_confidence_band": "high",
   "requires_human_validation": true,
