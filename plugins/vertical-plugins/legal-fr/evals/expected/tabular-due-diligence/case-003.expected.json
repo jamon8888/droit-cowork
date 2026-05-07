@@ -1,0 +1,81 @@
+{
+  "workflow": "tabular-due-diligence",
+  "draft_notice": "DRAFT - Validation professionnelle requise",
+  "findings": [
+    {
+      "finding_id": "tabular-due-diligence-case-003-finding-001",
+      "title": "legal_uncertainty eval finding",
+      "description": "Signaler l'incertitude juridique et demander validation humaine ciblee.",
+      "document_reference": "tabular-due-diligence-case-003-document",
+      "source_citation": {
+        "source_status": "unverified",
+        "citation": "Fixture source for tabular-due-diligence case-003",
+        "url": "",
+        "checked_with": "manual",
+        "verification_note": "Signaler l'incertitude juridique et demander validation humaine ciblee."
+      },
+      "risk_score": {
+        "severity": "major",
+        "legal_impact": 3,
+        "business_impact": 2,
+        "probability": 2,
+        "urgency": 3,
+        "confidence": 0.48,
+        "global_score": 5.0,
+        "rationale": "Fixture case legal_uncertainty with unverified source status."
+      },
+      "audit_trail": {
+        "finding_id": "tabular-due-diligence-case-003-finding-001",
+        "workflow": "tabular-due-diligence",
+        "document_id": "tabular-due-diligence-case-003-document",
+        "source_excerpt": "Point juridique dependant d'informations recentes ou d'un contexte absent.",
+        "legal_source": {
+          "source_status": "unverified",
+          "citation": "Fixture source for tabular-due-diligence case-003",
+          "url": "",
+          "checked_with": "manual",
+          "verification_note": "Signaler l'incertitude juridique et demander validation humaine ciblee."
+        },
+        "agent": "tabular-due-diligence",
+        "reviewer": "legal-qa-reviewer",
+        "confidence": 0.48,
+        "human_validation": {
+          "validated_by_human": false,
+          "validator_role": "avocat ou juriste senior",
+          "validation_required": true,
+          "validation_reason": "Eval fixture only; external reliance requires professional validation."
+        }
+      }
+    }
+  ],
+  "audit_trail": [
+    {
+      "finding_id": "tabular-due-diligence-case-003-finding-001",
+      "workflow": "tabular-due-diligence",
+      "document_id": "tabular-due-diligence-case-003-document",
+      "source_excerpt": "Point juridique dependant d'informations recentes ou d'un contexte absent.",
+      "legal_source": {
+        "source_status": "unverified",
+        "citation": "Fixture source for tabular-due-diligence case-003",
+        "url": "",
+        "checked_with": "manual",
+        "verification_note": "Signaler l'incertitude juridique et demander validation humaine ciblee."
+      },
+      "agent": "tabular-due-diligence",
+      "reviewer": "legal-qa-reviewer",
+      "confidence": 0.48,
+      "human_validation": {
+        "validated_by_human": false,
+        "validator_role": "avocat ou juriste senior",
+        "validation_required": true,
+        "validation_reason": "Eval fixture only; external reliance requires professional validation."
+      }
+    }
+  ],
+  "human_validation": {
+    "validated_by_human": false,
+    "validator_role": "avocat ou juriste senior",
+    "validation_required": true,
+    "validation_reason": "Eval fixture only; external reliance requires professional validation."
+  }
+}

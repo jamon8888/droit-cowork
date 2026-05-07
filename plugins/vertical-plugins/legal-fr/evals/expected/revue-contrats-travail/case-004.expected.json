@@ -1,0 +1,81 @@
+{
+  "workflow": "revue-contrats-travail",
+  "draft_notice": "DRAFT - Validation professionnelle requise",
+  "findings": [
+    {
+      "finding_id": "revue-contrats-travail-case-004-finding-001",
+      "title": "unreadable_or_incomplete eval finding",
+      "description": "Bloquer la conclusion substantielle et demander une piece lisible complete.",
+      "document_reference": "revue-contrats-travail-case-004-document",
+      "source_citation": {
+        "source_status": "unverified",
+        "citation": "Fixture source for revue-contrats-travail case-004",
+        "url": "",
+        "checked_with": "none",
+        "verification_note": "Bloquer la conclusion substantielle et demander une piece lisible complete."
+      },
+      "risk_score": {
+        "severity": "info",
+        "legal_impact": 1,
+        "business_impact": 1,
+        "probability": 0,
+        "urgency": 0,
+        "confidence": 0.0,
+        "global_score": 1.5,
+        "rationale": "Fixture case unreadable_or_incomplete with unverified source status."
+      },
+      "audit_trail": {
+        "finding_id": "revue-contrats-travail-case-004-finding-001",
+        "workflow": "revue-contrats-travail",
+        "document_id": "revue-contrats-travail-case-004-document",
+        "source_excerpt": "Pieces OCR partielles ou pages manquantes empechant une analyse fiable.",
+        "legal_source": {
+          "source_status": "unverified",
+          "citation": "Fixture source for revue-contrats-travail case-004",
+          "url": "",
+          "checked_with": "none",
+          "verification_note": "Bloquer la conclusion substantielle et demander une piece lisible complete."
+        },
+        "agent": "revue-contrats-travail",
+        "reviewer": "legal-qa-reviewer",
+        "confidence": 0.0,
+        "human_validation": {
+          "validated_by_human": false,
+          "validator_role": "avocat ou juriste senior",
+          "validation_required": true,
+          "validation_reason": "Eval fixture only; external reliance requires professional validation."
+        }
+      }
+    }
+  ],
+  "audit_trail": [
+    {
+      "finding_id": "revue-contrats-travail-case-004-finding-001",
+      "workflow": "revue-contrats-travail",
+      "document_id": "revue-contrats-travail-case-004-document",
+      "source_excerpt": "Pieces OCR partielles ou pages manquantes empechant une analyse fiable.",
+      "legal_source": {
+        "source_status": "unverified",
+        "citation": "Fixture source for revue-contrats-travail case-004",
+        "url": "",
+        "checked_with": "none",
+        "verification_note": "Bloquer la conclusion substantielle et demander une piece lisible complete."
+      },
+      "agent": "revue-contrats-travail",
+      "reviewer": "legal-qa-reviewer",
+      "confidence": 0.0,
+      "human_validation": {
+        "validated_by_human": false,
+        "validator_role": "avocat ou juriste senior",
+        "validation_required": true,
+        "validation_reason": "Eval fixture only; external reliance requires professional validation."
+      }
+    }
+  ],
+  "human_validation": {
+    "validated_by_human": false,
+    "validator_role": "avocat ou juriste senior",
+    "validation_required": true,
+    "validation_reason": "Eval fixture only; external reliance requires professional validation."
+  }
+}

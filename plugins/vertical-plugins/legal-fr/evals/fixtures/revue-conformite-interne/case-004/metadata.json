@@ -1,0 +1,10 @@
+{
+  "workflow": "revue-conformite-interne",
+  "case_id": "case-004",
+  "case_type": "unreadable_or_incomplete",
+  "risk_level": "unknown",
+  "expected_source_status": "unverified",
+  "expected_confidence_band": "unknown",
+  "requires_human_validation": true,
+  "expected_behavior": "Bloquer la conclusion substantielle et demander une piece lisible complete."
+}

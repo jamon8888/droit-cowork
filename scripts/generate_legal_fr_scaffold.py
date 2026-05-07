@@ -180,6 +180,62 @@ PRODUCTION_REQUIRED_TERMS = [
     "audit_trail",
 ]
 
+EVAL_CASES = [
+    ("case-001", "compliant", "low"),
+    ("case-002", "blocking_red_flag", "high"),
+    ("case-003", "legal_uncertainty", "medium"),
+    ("case-004", "unreadable_or_incomplete", "unknown"),
+    ("case-005", "source_not_found", "medium"),
+]
+
+EVAL_CASE_DETAILS = {
+    "compliant": {
+        "source_status": "official",
+        "checked_with": "openlegi",
+        "confidence": 0.9,
+        "severity": "minor",
+        "confidence_band": "high",
+        "input_note": "Document lisible, source officielle disponible, aucun red flag bloquant apparent.",
+        "expected_behavior": "Confirmer la conformite apparente tout en maintenant le statut draft.",
+    },
+    "blocking_red_flag": {
+        "source_status": "official",
+        "checked_with": "openlegi",
+        "confidence": 0.86,
+        "severity": "blocking",
+        "confidence_band": "high",
+        "input_note": "Clause manifestement sensible et source officielle disponible pour qualifier le risque.",
+        "expected_behavior": "Identifier un red flag bloquant et exiger revue avocat avant usage externe.",
+    },
+    "legal_uncertainty": {
+        "source_status": "unverified",
+        "checked_with": "manual",
+        "confidence": 0.48,
+        "severity": "major",
+        "confidence_band": "medium",
+        "input_note": "Point juridique dependant d'informations recentes ou d'un contexte absent.",
+        "expected_behavior": "Signaler l'incertitude juridique et demander validation humaine ciblee.",
+    },
+    "unreadable_or_incomplete": {
+        "source_status": "unverified",
+        "checked_with": "none",
+        "confidence": 0.0,
+        "severity": "info",
+        "confidence_band": "unknown",
+        "input_note": "Pieces OCR partielles ou pages manquantes empechant une analyse fiable.",
+        "expected_behavior": "Bloquer la conclusion substantielle et demander une piece lisible complete.",
+    },
+    "source_not_found": {
+        "source_status": "not_found",
+        "checked_with": "openlegi",
+        "confidence": 0.34,
+        "severity": "major",
+        "confidence_band": "low",
+        "input_note": "Affirmation juridique plausible mais source officielle introuvable dans le dossier.",
+        "expected_behavior": "Marquer la source comme introuvable et interdire toute conclusion finale.",
+    },
+}
+
 
 PLAYBOOKS = {
     "README.md": "# Playbooks Legal-FR\n\nLes playbooks codifient les standards cabinet et les termes a extraire. Ils servent d'entree stable aux agents orchestrateurs.\n",
@@ -511,6 +567,135 @@ The manual gate requires reviewers to preserve the draft notice, review `source_
 """
 
 
+def eval_input(workflow: str, case_id: str, case_type: str, risk_level: str) -> str:
+    details = EVAL_CASE_DETAILS[case_type]
+    return f"""# Eval fixture {case_id}: {workflow}
+
+DRAFT - Validation professionnelle requise
+
+## Workflow
+
+`{workflow}`
+
+## Case type
+
+`{case_type}`
+
+## Risk level
+
+`{risk_level}`
+
+## Cabinet scenario
+
+{details["input_note"]}
+
+## Expected handling
+
+{details["expected_behavior"]}
+
+## Source package
+
+- Document reference: `{workflow}-{case_id}-document`
+- Source status to test: `{details["source_status"]}`
+- Human validation remains mandatory before reliance.
+"""
+
+
+def eval_metadata(workflow: str, case_id: str, case_type: str, risk_level: str) -> dict:
+    details = EVAL_CASE_DETAILS[case_type]
+    return {
+        "workflow": workflow,
+        "case_id": case_id,
+        "case_type": case_type,
+        "risk_level": risk_level,
+        "expected_source_status": details["source_status"],
+        "expected_confidence_band": details["confidence_band"],
+        "requires_human_validation": True,
+        "expected_behavior": details["expected_behavior"],
+    }
+
+
+def expected_eval_output(workflow: str, case_id: str, case_type: str, risk_level: str) -> dict:
+    details = EVAL_CASE_DETAILS[case_type]
+    finding_id = f"{workflow}-{case_id}-finding-001"
+    document_id = f"{workflow}-{case_id}-document"
+    human_validation = {
+        "validated_by_human": False,
+        "validator_role": "avocat ou juriste senior",
+        "validation_required": True,
+        "validation_reason": "Eval fixture only; external reliance requires professional validation.",
+    }
+    source_citation = {
+        "source_status": details["source_status"],
+        "citation": f"Fixture source for {workflow} {case_id}",
+        "url": "",
+        "checked_with": details["checked_with"],
+        "verification_note": details["expected_behavior"],
+    }
+    audit_trail = {
+        "finding_id": finding_id,
+        "workflow": workflow,
+        "document_id": document_id,
+        "source_excerpt": details["input_note"],
+        "legal_source": source_citation,
+        "agent": workflow,
+        "reviewer": "legal-qa-reviewer",
+        "confidence": details["confidence"],
+        "human_validation": human_validation,
+    }
+    finding = {
+        "finding_id": finding_id,
+        "title": f"{case_type} eval finding",
+        "description": details["expected_behavior"],
+        "document_reference": document_id,
+        "source_citation": source_citation,
+        "risk_score": {
+            "severity": details["severity"],
+            "legal_impact": 5 if risk_level == "high" else 3 if risk_level == "medium" else 1,
+            "business_impact": 4 if risk_level == "high" else 2 if risk_level == "medium" else 1,
+            "probability": 4 if risk_level == "high" else 2 if risk_level == "medium" else 0,
+            "urgency": 5 if risk_level == "high" else 3 if risk_level == "medium" else 0,
+            "confidence": details["confidence"],
+            "global_score": 8.5 if risk_level == "high" else 5.0 if risk_level == "medium" else 1.5,
+            "rationale": f"Fixture case {case_type} with {details['source_status']} source status.",
+        },
+        "audit_trail": audit_trail,
+    }
+    return {
+        "workflow": workflow,
+        "draft_notice": "DRAFT - Validation professionnelle requise",
+        "findings": [finding],
+        "audit_trail": [audit_trail],
+        "human_validation": human_validation,
+    }
+
+
+def rubric_text(workflow: str) -> str:
+    cases = "\n".join(f"- `{case_id}`: `{case_type}` risk `{risk_level}`" for case_id, case_type, risk_level in EVAL_CASES)
+    return f"""# Legal-FR eval rubric: {workflow}
+
+## Required sections
+
+The answer must include workflow, draft_notice, findings, audit_trail and human_validation.
+
+## Case coverage
+
+{cases}
+
+## Source and confidence checks
+
+Each finding must include source_citation.source_status and risk_score.confidence. The source status must distinguish official, unverified and not_found cases.
+
+## Human validation gate
+
+Every case remains `DRAFT - Validation professionnelle requise`, with validated_by_human false and validation_required true.
+
+## Audit trail requirements
+
+Each top-level audit_trail item and each finding.audit_trail must link finding_id, workflow, document_id, legal_source, reviewer, confidence and human_validation.
+"""
+
+
 def production_grade_files() -> None:
     for name, schema in common_schemas().items():
         write(
@@ -527,6 +712,22 @@ def production_grade_files() -> None:
 
     write(VERTICAL / "audit" / "README.md", audit_readme())
     write(VERTICAL / "quality-gates" / "README.md", quality_gates_readme())
+
+    for workflow in WORKFLOWS:
+        write(VERTICAL / "evals" / "rubrics" / f"{workflow}.rubric.md", rubric_text(workflow))
+        for case_id, case_type, risk_level in EVAL_CASES:
+            write(
+                VERTICAL / "evals" / "fixtures" / workflow / case_id / "input.md",
+                eval_input(workflow, case_id, case_type, risk_level),
+            )
+            write(
+                VERTICAL / "evals" / "fixtures" / workflow / case_id / "metadata.json",
+                json.dumps(eval_metadata(workflow, case_id, case_type, risk_level), indent=2, ensure_ascii=False) + "\n",
+            )
+            write(
+                VERTICAL / "evals" / "expected" / workflow / f"{case_id}.expected.json",
+                json.dumps(expected_eval_output(workflow, case_id, case_type, risk_level), indent=2, ensure_ascii=False) + "\n",
+            )
 
 
 def vertical_docs() -> None:

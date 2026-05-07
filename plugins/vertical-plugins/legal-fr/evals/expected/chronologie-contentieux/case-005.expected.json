@@ -1,0 +1,81 @@
+{
+  "workflow": "chronologie-contentieux",
+  "draft_notice": "DRAFT - Validation professionnelle requise",
+  "findings": [
+    {
+      "finding_id": "chronologie-contentieux-case-005-finding-001",
+      "title": "source_not_found eval finding",
+      "description": "Marquer la source comme introuvable et interdire toute conclusion finale.",
+      "document_reference": "chronologie-contentieux-case-005-document",
+      "source_citation": {
+        "source_status": "not_found",
+        "citation": "Fixture source for chronologie-contentieux case-005",
+        "url": "",
+        "checked_with": "openlegi",
+        "verification_note": "Marquer la source comme introuvable et interdire toute conclusion finale."
+      },
+      "risk_score": {
+        "severity": "major",
+        "legal_impact": 3,
+        "business_impact": 2,
+        "probability": 2,
+        "urgency": 3,
+        "confidence": 0.34,
+        "global_score": 5.0,
+        "rationale": "Fixture case source_not_found with not_found source status."
+      },
+      "audit_trail": {
+        "finding_id": "chronologie-contentieux-case-005-finding-001",
+        "workflow": "chronologie-contentieux",
+        "document_id": "chronologie-contentieux-case-005-document",
+        "source_excerpt": "Affirmation juridique plausible mais source officielle introuvable dans le dossier.",
+        "legal_source": {
+          "source_status": "not_found",
+          "citation": "Fixture source for chronologie-contentieux case-005",
+          "url": "",
+          "checked_with": "openlegi",
+          "verification_note": "Marquer la source comme introuvable et interdire toute conclusion finale."
+        },
+        "agent": "chronologie-contentieux",
+        "reviewer": "legal-qa-reviewer",
+        "confidence": 0.34,
+        "human_validation": {
+          "validated_by_human": false,
+          "validator_role": "avocat ou juriste senior",
+          "validation_required": true,
+          "validation_reason": "Eval fixture only; external reliance requires professional validation."
+        }
+      }
+    }
+  ],
+  "audit_trail": [
+    {
+      "finding_id": "chronologie-contentieux-case-005-finding-001",
+      "workflow": "chronologie-contentieux",
+      "document_id": "chronologie-contentieux-case-005-document",
+      "source_excerpt": "Affirmation juridique plausible mais source officielle introuvable dans le dossier.",
+      "legal_source": {
+        "source_status": "not_found",
+        "citation": "Fixture source for chronologie-contentieux case-005",
+        "url": "",
+        "checked_with": "openlegi",
+        "verification_note": "Marquer la source comme introuvable et interdire toute conclusion finale."
+      },
+      "agent": "chronologie-contentieux",
+      "reviewer": "legal-qa-reviewer",
+      "confidence": 0.34,
+      "human_validation": {
+        "validated_by_human": false,
+        "validator_role": "avocat ou juriste senior",
+        "validation_required": true,
+        "validation_reason": "Eval fixture only; external reliance requires professional validation."
+      }
+    }
+  ],
+  "human_validation": {
+    "validated_by_human": false,
+    "validator_role": "avocat ou juriste senior",
+    "validation_required": true,
+    "validation_reason": "Eval fixture only; external reliance requires professional validation."
+  }
+}

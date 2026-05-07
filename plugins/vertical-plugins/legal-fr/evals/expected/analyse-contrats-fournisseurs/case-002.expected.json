@@ -1,0 +1,81 @@
+{
+  "workflow": "analyse-contrats-fournisseurs",
+  "draft_notice": "DRAFT - Validation professionnelle requise",
+  "findings": [
+    {
+      "finding_id": "analyse-contrats-fournisseurs-case-002-finding-001",
+      "title": "blocking_red_flag eval finding",
+      "description": "Identifier un red flag bloquant et exiger revue avocat avant usage externe.",
+      "document_reference": "analyse-contrats-fournisseurs-case-002-document",
+      "source_citation": {
+        "source_status": "official",
+        "citation": "Fixture source for analyse-contrats-fournisseurs case-002",
+        "url": "",
+        "checked_with": "openlegi",
+        "verification_note": "Identifier un red flag bloquant et exiger revue avocat avant usage externe."
+      },
+      "risk_score": {
+        "severity": "blocking",
+        "legal_impact": 5,
+        "business_impact": 4,
+        "probability": 4,
+        "urgency": 5,
+        "confidence": 0.86,
+        "global_score": 8.5,
+        "rationale": "Fixture case blocking_red_flag with official source status."
+      },
+      "audit_trail": {
+        "finding_id": "analyse-contrats-fournisseurs-case-002-finding-001",
+        "workflow": "analyse-contrats-fournisseurs",
+        "document_id": "analyse-contrats-fournisseurs-case-002-document",
+        "source_excerpt": "Clause manifestement sensible et source officielle disponible pour qualifier le risque.",
+        "legal_source": {
+          "source_status": "official",
+          "citation": "Fixture source for analyse-contrats-fournisseurs case-002",
+          "url": "",
+          "checked_with": "openlegi",
+          "verification_note": "Identifier un red flag bloquant et exiger revue avocat avant usage externe."
+        },
+        "agent": "analyse-contrats-fournisseurs",
+        "reviewer": "legal-qa-reviewer",
+        "confidence": 0.86,
+        "human_validation": {
+          "validated_by_human": false,
+          "validator_role": "avocat ou juriste senior",
+          "validation_required": true,
+          "validation_reason": "Eval fixture only; external reliance requires professional validation."
+        }
+      }
+    }
+  ],
+  "audit_trail": [
+    {
+      "finding_id": "analyse-contrats-fournisseurs-case-002-finding-001",
+      "workflow": "analyse-contrats-fournisseurs",
+      "document_id": "analyse-contrats-fournisseurs-case-002-document",
+      "source_excerpt": "Clause manifestement sensible et source officielle disponible pour qualifier le risque.",
+      "legal_source": {
+        "source_status": "official",
+        "citation": "Fixture source for analyse-contrats-fournisseurs case-002",
+        "url": "",
+        "checked_with": "openlegi",
+        "verification_note": "Identifier un red flag bloquant et exiger revue avocat avant usage externe."
+      },
+      "agent": "analyse-contrats-fournisseurs",
+      "reviewer": "legal-qa-reviewer",
+      "confidence": 0.86,
+      "human_validation": {
+        "validated_by_human": false,
+        "validator_role": "avocat ou juriste senior",
+        "validation_required": true,
+        "validation_reason": "Eval fixture only; external reliance requires professional validation."
+      }
+    }
+  ],
+  "human_validation": {
+    "validated_by_human": false,
+    "validator_role": "avocat ou juriste senior",
+    "validation_required": true,
+    "validation_reason": "Eval fixture only; external reliance requires professional validation."
+  }
+}

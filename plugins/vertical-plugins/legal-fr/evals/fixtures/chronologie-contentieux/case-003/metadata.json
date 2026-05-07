@@ -1,0 +1,10 @@
+{
+  "workflow": "chronologie-contentieux",
+  "case_id": "case-003",
+  "case_type": "legal_uncertainty",
+  "risk_level": "medium",
+  "expected_source_status": "unverified",
+  "expected_confidence_band": "medium",
+  "requires_human_validation": true,
+  "expected_behavior": "Signaler l'incertitude juridique et demander validation humaine ciblee."
+}

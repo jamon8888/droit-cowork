@@ -1,0 +1,81 @@
+{
+  "workflow": "chronologie-contentieux",
+  "draft_notice": "DRAFT - Validation professionnelle requise",
+  "findings": [
+    {
+      "finding_id": "chronologie-contentieux-case-001-finding-001",
+      "title": "compliant eval finding",
+      "description": "Confirmer la conformite apparente tout en maintenant le statut draft.",
+      "document_reference": "chronologie-contentieux-case-001-document",
+      "source_citation": {
+        "source_status": "official",
+        "citation": "Fixture source for chronologie-contentieux case-001",
+        "url": "",
+        "checked_with": "openlegi",
+        "verification_note": "Confirmer la conformite apparente tout en maintenant le statut draft."
+      },
+      "risk_score": {
+        "severity": "minor",
+        "legal_impact": 1,
+        "business_impact": 1,
+        "probability": 0,
+        "urgency": 0,
+        "confidence": 0.9,
+        "global_score": 1.5,
+        "rationale": "Fixture case compliant with official source status."
+      },
+      "audit_trail": {
+        "finding_id": "chronologie-contentieux-case-001-finding-001",
+        "workflow": "chronologie-contentieux",
+        "document_id": "chronologie-contentieux-case-001-document",
+        "source_excerpt": "Document lisible, source officielle disponible, aucun red flag bloquant apparent.",
+        "legal_source": {
+          "source_status": "official",
+          "citation": "Fixture source for chronologie-contentieux case-001",
+          "url": "",
+          "checked_with": "openlegi",
+          "verification_note": "Confirmer la conformite apparente tout en maintenant le statut draft."
+        },
+        "agent": "chronologie-contentieux",
+        "reviewer": "legal-qa-reviewer",
+        "confidence": 0.9,
+        "human_validation": {
+          "validated_by_human": false,
+          "validator_role": "avocat ou juriste senior",
+          "validation_required": true,
+          "validation_reason": "Eval fixture only; external reliance requires professional validation."
+        }
+      }
+    }
+  ],
+  "audit_trail": [
+    {
+      "finding_id": "chronologie-contentieux-case-001-finding-001",
+      "workflow": "chronologie-contentieux",
+      "document_id": "chronologie-contentieux-case-001-document",
+      "source_excerpt": "Document lisible, source officielle disponible, aucun red flag bloquant apparent.",
+      "legal_source": {
+        "source_status": "official",
+        "citation": "Fixture source for chronologie-contentieux case-001",
+        "url": "",
+        "checked_with": "openlegi",
+        "verification_note": "Confirmer la conformite apparente tout en maintenant le statut draft."
+      },
+      "agent": "chronologie-contentieux",
+      "reviewer": "legal-qa-reviewer",
+      "confidence": 0.9,
+      "human_validation": {
+        "validated_by_human": false,
+        "validator_role": "avocat ou juriste senior",
+        "validation_required": true,
+        "validation_reason": "Eval fixture only; external reliance requires professional validation."
+      }
+    }
+  ],
+  "human_validation": {
+    "validated_by_human": false,
+    "validator_role": "avocat ou juriste senior",
+    "validation_required": true,
+    "validation_reason": "Eval fixture only; external reliance requires professional validation."
+  }
+}
