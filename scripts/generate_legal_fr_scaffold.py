@@ -159,6 +159,28 @@ WORKFLOWS = {
 }
 
 
+JSON_SCHEMA_DRAFT = "https://json-schema.org/draft/2020-12/schema"
+
+COMMON_SCHEMA_NAMES = [
+    "document-intake",
+    "source-citation",
+    "risk-score",
+    "finding",
+    "audit-trail",
+    "human-validation",
+]
+
+WORKFLOW_SCHEMA_NAMES = ["extraction", "report"]
+
+PRODUCTION_REQUIRED_TERMS = [
+    "DRAFT - Validation professionnelle requise",
+    "validated_by_human",
+    "confidence",
+    "source_status",
+    "audit_trail",
+]
+
+
 PLAYBOOKS = {
     "README.md": "# Playbooks Legal-FR\n\nLes playbooks codifient les standards cabinet et les termes a extraire. Ils servent d'entree stable aux agents orchestrateurs.\n",
     "format-playbook.md": "# Format Playbook Legal-FR\n\nUn playbook contient un frontmatter, une liste de termes a extraire, des regles de conformite, des red flags et un format JSON de sortie.\n",
@@ -185,6 +207,25 @@ def plugin_json(name: str, description: str) -> str:
         indent=2,
         ensure_ascii=False,
     ) + "\n"
+
+
+def object_schema(title: str, properties: dict, required: list[str]) -> dict:
+    return {
+        "$schema": JSON_SCHEMA_DRAFT,
+        "title": title,
+        "type": "object",
+        "additionalProperties": False,
+        "properties": properties,
+        "required": required,
+    }
+
+
+def string_enum(values: list[str]) -> dict:
+    return {"type": "string", "enum": values}
+
+
+def ref(schema_name: str) -> dict:
+    return {"$ref": f"../../common/{schema_name}.schema.json"}
 
 
 def command_text(family: str, command: str, description: str) -> str:
@@ -275,6 +316,95 @@ Every external-facing output is a draft for professional review and must include
 
 {skills}
 """
+
+
+def common_schemas() -> dict[str, dict]:
+    return {
+        "document-intake": object_schema(
+            "Legal-FR document intake",
+            {
+                "document_id": {"type": "string", "minLength": 1},
+                "filename": {"type": "string", "minLength": 1},
+                "detected_type": string_enum(["contract", "case_law", "email", "pleading", "lease", "employment", "financial", "unknown"]),
+                "language": string_enum(["fr", "en", "de", "other", "mixed"]),
+                "legal_domain": string_enum(["contracts", "social", "baux", "contentieux", "capital_markets", "due_diligence", "unknown"]),
+                "readability": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "properties": {
+                        "status": string_enum(["ok", "ocr_weak", "unreadable"]),
+                        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                    },
+                    "required": ["status", "confidence"],
+                },
+                "requires_human_triage": {"type": "boolean"},
+            },
+            ["document_id", "filename", "detected_type", "language", "legal_domain", "readability", "requires_human_triage"],
+        ),
+        "source-citation": object_schema(
+            "Legal-FR source citation",
+            {
+                "source_status": string_enum(["official", "secondary", "web", "unverified", "not_found"]),
+                "citation": {"type": "string"},
+                "url": {"type": "string"},
+                "checked_with": string_enum(["openlegi", "exa", "manual", "none"]),
+                "verification_note": {"type": "string"},
+            },
+            ["source_status", "citation", "url", "checked_with", "verification_note"],
+        ),
+        "risk-score": object_schema(
+            "Legal-FR risk score",
+            {
+                "severity": string_enum(["blocking", "major", "minor", "info"]),
+                "legal_impact": {"type": "integer", "minimum": 0, "maximum": 5},
+                "business_impact": {"type": "integer", "minimum": 0, "maximum": 5},
+                "probability": {"type": "integer", "minimum": 0, "maximum": 5},
+                "urgency": {"type": "integer", "minimum": 0, "maximum": 5},
+                "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                "global_score": {"type": "number", "minimum": 0, "maximum": 10},
+                "rationale": {"type": "string"},
+            },
+            ["severity", "legal_impact", "business_impact", "probability", "urgency", "confidence", "global_score", "rationale"],
+        ),
+        "human-validation": object_schema(
+            "Legal-FR human validation",
+            {
+                "validated_by_human": {"type": "boolean"},
+                "validator_role": {"type": "string"},
+                "validation_required": {"type": "boolean"},
+                "validation_reason": {"type": "string"},
+            },
+            ["validated_by_human", "validator_role", "validation_required", "validation_reason"],
+        ),
+        "audit-trail": object_schema(
+            "Legal-FR audit trail",
+            {
+                "finding_id": {"type": "string"},
+                "workflow": {"type": "string"},
+                "document_id": {"type": "string"},
+                "source_excerpt": {"type": "string"},
+                "legal_source": {"$ref": "source-citation.schema.json"},
+                "agent": {"type": "string"},
+                "reviewer": {"type": "string"},
+                "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+                "human_validation": {"$ref": "human-validation.schema.json"},
+            },
+            ["finding_id", "workflow", "document_id", "source_excerpt", "legal_source", "agent", "reviewer", "confidence", "human_validation"],
+        ),
+        "finding": object_schema(
+            "Legal-FR finding",
+            {
+                "finding_id": {"type": "string"},
+                "title": {"type": "string"},
+                "description": {"type": "string"},
+                "document_reference": {"type": "string"},
+                "source_citation": {"$ref": "source-citation.schema.json"},
+                "risk_score": {"$ref": "risk-score.schema.json"},
+                "audit_trail": {"$ref": "audit-trail.schema.json"},
+            },
+            ["finding_id", "title", "description", "document_reference", "source_citation", "risk_score", "audit_trail"],
+        ),
+    }
 
 
 def vertical_docs() -> None:
