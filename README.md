@@ -111,6 +111,7 @@ Start with **financial-analysis** — it carries the shared modeling skills and 
 | **[wealth-management](./plugins/vertical-plugins/wealth-management)** | Client reviews, financial plans, rebalancing, reporting, TLH. |
 | **[fund-admin](./plugins/vertical-plugins/fund-admin)** | GL recon, break tracing, accruals, roll-forwards, variance commentary, NAV tie-out. |
 | **[operations](./plugins/vertical-plugins/operations)** | KYC document parsing and rules-grid evaluation. |
+| **[legal-fr](./plugins/vertical-plugins/legal-fr)** | French legal workflows inspired by Legora: compliance playbooks, supplier contracts, litigation timelines, jurisprudence, employment contracts, leases, AMF notes, and tabular due diligence. |
 | **[lseg](./plugins/partner-built/lseg)** *(partner)* | Bond RV, swap curves, FX carry, options vol, macro-rates monitoring on LSEG data. |
 | **[sp-global](./plugins/partner-built/spglobal)** *(partner)* | Tear sheets, earnings previews, funding digests on S&P Capital IQ. |
 
@@ -156,6 +157,91 @@ These are reference templates — they get better when you tune them to how your
 - **Bring your templates** — `/ppt-template` teaches Claude your branded PowerPoint layouts.
 - **Adjust agent scope** — edit `agents/<slug>.md` to match how your team actually runs the workflow.
 - **Add your own** — copy the structure for workflows we haven't covered.
+
+## Creer un nouveau plugin metier
+
+Le depot se lit comme une fabrique de plugins metiers. Un vertical porte les briques reutilisables d'un domaine; un agent assemble certaines briques dans un workflow complet; un cookbook Managed Agent permet de deployer le meme agent en mode headless.
+
+### Modele mental
+
+| Niveau | Role | Quand le creer | Dossier |
+|---|---|---|---|
+| **Vertical plugin** | Pack de skills, commandes et connecteurs pour un domaine metier. | Quand vous voulez exposer des capacites reutilisables comme `/cim`, `/dcf`, `/earnings` ou des workflows KYC. | `plugins/vertical-plugins/<vertical>/` |
+| **Agent plugin** | Agent Cowork autonome, installe comme un plugin self-contained. | Quand un utilisateur veut deleguer un workflow de bout en bout: pitch, model build, GL recon, KYC screening. | `plugins/agent-plugins/<agent-slug>/` |
+| **Managed-agent cookbook** | Wrapper API pour deployer le meme agent avec outils, MCP, sous-agents et exemples de steering. | Quand l'agent doit tourner derriere votre propre orchestrateur ou workflow engine. | `managed-agent-cookbooks/<agent-slug>/` |
+| **Partner plugin** | Plugin fourni par un partenaire avec ses propres skills et MCP. | Quand le domaine depend surtout d'un fournisseur de donnees ou d'une plateforme externe. | `plugins/partner-built/<partner>/` |
+
+### Structure type d'un vertical
+
+```text
+plugins/vertical-plugins/<vertical>/
+  .claude-plugin/plugin.json      # manifeste installable du plugin
+  README.md                       # description fonctionnelle du vertical
+  commands/*.md                   # slash commands explicites
+  skills/<skill>/SKILL.md         # source de verite des skills metier
+  skills/<skill>/references/      # optionnel: templates, exemples, checklists
+  skills/<skill>/scripts/         # optionnel: scripts locaux utilises par la skill
+  .mcp.json                       # optionnel: connecteurs MCP du vertical
+  hooks/hooks.json                # optionnel: hooks Claude Code quand supportes
+```
+
+Les skills doivent etre editees dans `plugins/vertical-plugins/<vertical>/skills/`. Les copies presentes dans `plugins/agent-plugins/<agent>/skills/` sont des bundles vendus avec l'agent et se regenerent avec `python3 scripts/sync-agent-skills.py`.
+
+Une commande est volontairement fine: elle charge la skill et fixe l'intention. Exemple: `commands/cim.md` charge `cim-builder` et demande les donnees manquantes si l'argument n'est pas fourni. La logique durable doit rester dans `SKILL.md`, pas dans la commande.
+
+### Structure type d'un agent Cowork
+
+```text
+plugins/agent-plugins/<agent-slug>/
+  .claude-plugin/plugin.json      # nom, version, description, auteur
+  agents/<agent-slug>.md          # system prompt canonique de l'agent
+  skills/<skill>/                 # copies synchronisees depuis les verticals
+```
+
+Le fichier `agents/<agent-slug>.md` est le contrat principal de l'agent. Il contient le frontmatter `name`, `description`, `tools`, puis le role, les livrables, le workflow, les guardrails et la liste des skills invoquees. Ce meme prompt est reference par le cookbook Managed Agent via `system.file`, ce qui garde une seule source de comportement.
+
+Un agent doit rester self-contained: s'il mentionne une skill dans son prompt, le dossier `plugins/agent-plugins/<agent-slug>/skills/<skill>/` doit exister. Le script `python3 scripts/check.py` verifie ce point et signale les bundles qui ont derive de leur source verticale.
+
+### Structure type d'un cookbook Managed Agent
+
+```text
+managed-agent-cookbooks/<agent-slug>/
+  agent.yaml                      # orchestrateur: modele, system.file, tools, MCP, skills
+  subagents/*.yaml                # workers leaf, chacun avec un perimetre clair
+  steering-examples.json          # exemples d'evenements pour piloter l'orchestration
+  README.md                       # notes de securite, handoff, limitations
+```
+
+`agent.yaml` reference normalement le prompt Cowork avec `system.file: ../../plugins/agent-plugins/<agent-slug>/agents/<agent-slug>.md` et charge les skills avec `skills: [{ from_plugin: ../../plugins/agent-plugins/<agent-slug> }]`. Les `mcp_servers` utilisent des variables d'environnement pour eviter les secrets hardcodes. Les `callable_agents` pointent vers des subagents de profondeur 1, typiquement specialises par recherche, modele, redaction ou controle qualite.
+
+### Marketplace et installation
+
+La marketplace du depot vit dans `.claude-plugin/marketplace.json`. Pour rendre un plugin installable depuis la marketplace, ajouter une entree avec:
+
+- `name`: slug du plugin.
+- `source`: chemin relatif vers le dossier du plugin.
+- `description`: phrase courte orientee utilisateur.
+
+Les manifests individuels vivent dans `.claude-plugin/plugin.json` sous chaque plugin. Leur shape actuelle est volontairement simple: `name`, `version`, `description`, `author`.
+
+### Workflow conseille pour ajouter un domaine
+
+1. **Definir le vertical**: choisir un slug stable, par exemple `risk-management`, puis creer `plugins/vertical-plugins/risk-management/`.
+2. **Ajouter les skills sources**: une skill par capacite metier durable, avec `SKILL.md`, references et scripts si necessaire.
+3. **Ajouter les commandes**: uniquement pour les actions que l'utilisateur declenche explicitement, comme `/risk-report` ou `/policy-review`.
+4. **Ajouter les MCP**: declarer les connecteurs dans `.mcp.json` et documenter les variables d'environnement ou abonnements requis.
+5. **Creer l'agent si le workflow est end-to-end**: ajouter `plugins/agent-plugins/<agent-slug>/agents/<agent-slug>.md`, puis copier les skills requises dans `skills/`.
+6. **Creer le cookbook si l'agent doit tourner via API**: ajouter `managed-agent-cookbooks/<agent-slug>/agent.yaml`, les subagents, `steering-examples.json` et le README de securite.
+7. **Enregistrer dans la marketplace**: ajouter le vertical, l'agent et les partenaires eventuels dans `.claude-plugin/marketplace.json`.
+8. **Synchroniser et verifier**: executer `python3 scripts/sync-agent-skills.py`, puis `python3 scripts/check.py`.
+
+### Regles de conception
+
+- Le vertical est la source de verite; l'agent ne doit pas contenir une version divergente d'une skill.
+- Un agent doit produire des artefacts clairement revus par un humain et ne doit pas executer d'action irreversible: pas d'ordre, pas d'approbation, pas de posting comptable, pas de communication externe sans outil et controle explicites.
+- Les donnees sensibles et les credentials restent hors repo: utiliser des variables d'environnement dans les MCP et documenter les pre-requis.
+- Les prompts d'agents doivent inclure les livrables, le workflow, les guardrails et les points de validation humaine.
+- Les skills doivent etre petites, nommees par capacite, et reutilisables par plusieurs agents quand c'est pertinent.
 
 ## Skill & Command Reference
 

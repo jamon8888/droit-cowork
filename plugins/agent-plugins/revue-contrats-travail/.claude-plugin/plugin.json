@@ -1,0 +1,8 @@
+{
+  "name": "revue-contrats-travail",
+  "version": "1.0.0",
+  "description": "Revue des contrats de travail, remuneration, non-concurrence et conformite conventionnelle.",
+  "author": {
+    "name": "Hacienda.diy"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "name": "analyse-contrats-fournisseurs",
+  "version": "1.0.0",
+  "description": "Analyse en masse des contrats fournisseurs avec extraction des termes cles et scoring de risque.",
+  "author": {
+    "name": "Hacienda.diy"
+  }
+}

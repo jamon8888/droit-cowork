@@ -1,0 +1,8 @@
+{
+  "name": "revue-conformite-interne",
+  "version": "1.0.0",
+  "description": "Verifie un document juridique contre les standards internes du cabinet ou de l'entreprise.",
+  "author": {
+    "name": "Hacienda.diy"
+  }
+}

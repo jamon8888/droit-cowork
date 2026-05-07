@@ -1,0 +1,8 @@
+{
+  "name": "note-information-amf",
+  "version": "1.0.0",
+  "description": "Redaction assistee des facteurs de risque et sections reglementaires des notes d'information AMF.",
+  "author": {
+    "name": "Hacienda.diy"
+  }
+}

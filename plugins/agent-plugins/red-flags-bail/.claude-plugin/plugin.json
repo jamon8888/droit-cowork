@@ -1,0 +1,8 @@
+{
+  "name": "red-flags-bail",
+  "version": "1.0.0",
+  "description": "Analyse des baux commerciaux, professionnels ou mixtes avec detection de red flags.",
+  "author": {
+    "name": "Hacienda.diy"
+  }
+}

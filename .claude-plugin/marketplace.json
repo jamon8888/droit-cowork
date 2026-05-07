@@ -103,6 +103,51 @@
       "name": "claude-for-msft-365-install",
       "source": "./claude-for-msft-365-install",
       "description": "Provision direct cloud access (Vertex AI, Bedrock, or LLM gateway) for the Claude Microsoft 365 add-in. Generates the customized manifest, walks through Azure admin consent, and writes per-user config via Graph extension attributes."
+    },
+    {
+      "name": "legal-fr",
+      "source": "./plugins/vertical-plugins/legal-fr",
+      "description": "Socle juridique francais: playbooks, Tabular Review, OpenLegi, Exa et skills metier."
+    },
+    {
+      "name": "revue-conformite-interne",
+      "source": "./plugins/agent-plugins/revue-conformite-interne",
+      "description": "Verifie un document juridique contre les standards internes du cabinet ou de l'entreprise."
+    },
+    {
+      "name": "analyse-contrats-fournisseurs",
+      "source": "./plugins/agent-plugins/analyse-contrats-fournisseurs",
+      "description": "Analyse en masse des contrats fournisseurs avec extraction des termes cles et scoring de risque."
+    },
+    {
+      "name": "chronologie-contentieux",
+      "source": "./plugins/agent-plugins/chronologie-contentieux",
+      "description": "Extrait dates, actes et jalons proceduraux pour reconstruire une chronologie contentieuse."
+    },
+    {
+      "name": "jurisprudence-multilingue",
+      "source": "./plugins/agent-plugins/jurisprudence-multilingue",
+      "description": "Recherche, analyse, compare et traduit des decisions de justice multi-juridictionnelles."
+    },
+    {
+      "name": "revue-contrats-travail",
+      "source": "./plugins/agent-plugins/revue-contrats-travail",
+      "description": "Revue des contrats de travail, remuneration, non-concurrence et conformite conventionnelle."
+    },
+    {
+      "name": "red-flags-bail",
+      "source": "./plugins/agent-plugins/red-flags-bail",
+      "description": "Analyse des baux commerciaux, professionnels ou mixtes avec detection de red flags."
+    },
+    {
+      "name": "note-information-amf",
+      "source": "./plugins/agent-plugins/note-information-amf",
+      "description": "Redaction assistee des facteurs de risque et sections reglementaires des notes d'information AMF."
+    },
+    {
+      "name": "tabular-due-diligence",
+      "source": "./plugins/agent-plugins/tabular-due-diligence",
+      "description": "Due diligence a grande echelle par extraction parallele, scoring et consolidation tabulaire."
     }
   ]
 }

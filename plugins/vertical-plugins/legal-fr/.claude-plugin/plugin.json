@@ -1,0 +1,8 @@
+{
+  "name": "legal-fr",
+  "version": "1.0.0",
+  "description": "Socle juridique francais pour workflows Legora-FR: playbooks, Tabular Review, OpenLegi, Exa, agents metier.",
+  "author": {
+    "name": "Hacienda.diy"
+  }
+}

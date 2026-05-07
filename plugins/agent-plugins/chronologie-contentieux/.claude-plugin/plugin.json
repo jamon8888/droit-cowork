@@ -1,0 +1,8 @@
+{
+  "name": "chronologie-contentieux",
+  "version": "1.0.0",
+  "description": "Extrait dates, actes et jalons proceduraux pour reconstruire une chronologie contentieuse.",
+  "author": {
+    "name": "Hacienda.diy"
+  }
+}

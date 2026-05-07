@@ -1,0 +1,8 @@
+{
+  "name": "tabular-due-diligence",
+  "version": "1.0.0",
+  "description": "Due diligence a grande echelle par extraction parallele, scoring et consolidation tabulaire.",
+  "author": {
+    "name": "Hacienda.diy"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "exa": {
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp"
+    },
+    "openlegi": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote@latest",
+        "https://mcp.openlegi.fr/legifrance/mcp?token=${OPENLEGI_TOKEN}"
+      ]
+    }
+  }
+}
