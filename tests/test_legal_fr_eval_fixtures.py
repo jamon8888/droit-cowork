@@ -16,6 +16,7 @@ WORKFLOWS = [
     "red-flags-bail",
     "note-information-amf",
     "tabular-due-diligence",
+    "recherche-juridique-fr-avancee",
 ]
 
 WORKFLOW_INTAKE_METADATA = {
@@ -50,6 +51,10 @@ WORKFLOW_INTAKE_METADATA = {
     "tabular-due-diligence": {
         "detected_type": "data_room_document",
         "legal_domain": "due_diligence",
+    },
+    "recherche-juridique-fr-avancee": {
+        "detected_type": "legal_research_question",
+        "legal_domain": "french_legal_research",
     },
 }
 
