@@ -32,40 +32,23 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "schema_kind": {
-          "const": "extraction"
-        },
-        "documents_reviewed": {
+        "documents_seen": {
           "type": "integer",
           "minimum": 0
         },
-        "documents_total": {
+        "documents_processed": {
           "type": "integer",
           "minimum": 0
         },
-        "confidence": {
-          "type": "number",
-          "minimum": 0,
-          "maximum": 1
-        },
-        "source_status": {
-          "type": "string",
-          "enum": [
-            "official",
-            "secondary",
-            "web",
-            "unverified",
-            "not_found",
-            "mixed"
-          ]
+        "documents_unreadable": {
+          "type": "integer",
+          "minimum": 0
         }
       },
       "required": [
-        "schema_kind",
-        "documents_reviewed",
-        "documents_total",
-        "confidence",
-        "source_status"
+        "documents_seen",
+        "documents_processed",
+        "documents_unreadable"
       ]
     }
   },

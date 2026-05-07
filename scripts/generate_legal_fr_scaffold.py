@@ -522,13 +522,11 @@ def workflow_schema(workflow: str, schema_kind: str) -> dict:
                 "type": "object",
                 "additionalProperties": False,
                 "properties": {
-                    "schema_kind": {"const": schema_kind},
-                    "documents_reviewed": {"type": "integer", "minimum": 0},
-                    "documents_total": {"type": "integer", "minimum": 0},
-                    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
-                    "source_status": string_enum(["official", "secondary", "web", "unverified", "not_found", "mixed"]),
+                    "documents_seen": {"type": "integer", "minimum": 0},
+                    "documents_processed": {"type": "integer", "minimum": 0},
+                    "documents_unreadable": {"type": "integer", "minimum": 0},
                 },
-                "required": ["schema_kind", "documents_reviewed", "documents_total", "confidence", "source_status"],
+                "required": ["documents_seen", "documents_processed", "documents_unreadable"],
             },
         },
         ["workflow", "document_intake", "findings", "audit_trail", "human_validation", "draft_notice", "coverage"],
@@ -619,6 +617,24 @@ def expected_eval_output(workflow: str, case_id: str, case_type: str, risk_level
     details = EVAL_CASE_DETAILS[case_type]
     finding_id = f"{workflow}-{case_id}-finding-001"
     document_id = f"{workflow}-{case_id}-document"
+    unreadable = case_type == "unreadable_or_incomplete"
+    document_intake = {
+        "document_id": document_id,
+        "filename": f"{workflow}-{case_id}.md",
+        "detected_type": "unknown" if unreadable else "contract",
+        "language": "fr",
+        "legal_domain": "unknown" if unreadable else "contracts",
+        "readability": {
+            "status": "unreadable" if unreadable else "ok",
+            "confidence": 0.0 if unreadable else details["confidence"],
+        },
+        "requires_human_triage": True,
+    }
+    coverage = {
+        "documents_seen": 1,
+        "documents_processed": 0 if unreadable else 1,
+        "documents_unreadable": 1 if unreadable else 0,
+    }
     human_validation = {
         "validated_by_human": False,
         "validator_role": "avocat ou juriste senior",
@@ -663,10 +679,12 @@ def expected_eval_output(workflow: str, case_id: str, case_type: str, risk_level
     }
     return {
         "workflow": workflow,
+        "document_intake": document_intake,
         "draft_notice": "DRAFT - Validation professionnelle requise",
         "findings": [finding],
         "audit_trail": [audit_trail],
         "human_validation": human_validation,
+        "coverage": coverage,
     }
 
 
@@ -676,7 +694,7 @@ def rubric_text(workflow: str) -> str:
 
 ## Required sections
 
-The answer must include workflow, draft_notice, findings, audit_trail and human_validation.
+The schema JSON section must include workflow, document_intake, draft_notice, findings, audit_trail, human_validation and coverage.
 
 ## Case coverage
 

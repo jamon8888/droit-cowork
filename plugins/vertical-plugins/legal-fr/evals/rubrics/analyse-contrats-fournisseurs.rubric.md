@@ -2,7 +2,7 @@
 
 ## Required sections
 
-The answer must include workflow, draft_notice, findings, audit_trail and human_validation.
+The schema JSON section must include workflow, document_intake, draft_notice, findings, audit_trail, human_validation and coverage.
 
 ## Case coverage
 

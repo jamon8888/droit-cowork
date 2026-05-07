@@ -1,5 +1,17 @@
 {
   "workflow": "revue-conformite-interne",
+  "document_intake": {
+    "document_id": "revue-conformite-interne-case-001-document",
+    "filename": "revue-conformite-interne-case-001.md",
+    "detected_type": "contract",
+    "language": "fr",
+    "legal_domain": "contracts",
+    "readability": {
+      "status": "ok",
+      "confidence": 0.9
+    },
+    "requires_human_triage": true
+  },
   "draft_notice": "DRAFT - Validation professionnelle requise",
   "findings": [
     {
@@ -77,5 +89,10 @@
     "validator_role": "avocat ou juriste senior",
     "validation_required": true,
     "validation_reason": "Eval fixture only; external reliance requires professional validation."
+  },
+  "coverage": {
+    "documents_seen": 1,
+    "documents_processed": 1,
+    "documents_unreadable": 0
   }
 }

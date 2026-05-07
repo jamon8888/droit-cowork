@@ -85,6 +85,26 @@ class LegalFrEvalFixturesTest(unittest.TestCase):
 
                     self.assertEqual(expected["workflow"], workflow)
                     self.assertEqual(expected["draft_notice"], "DRAFT - Validation professionnelle requise")
+                    self.assertIn("document_intake", expected)
+                    document_intake = expected["document_intake"]
+                    self.assertEqual(document_intake["document_id"], f"{workflow}-{case_id}-document")
+                    self.assertIn("filename", document_intake)
+                    self.assertIn("detected_type", document_intake)
+                    self.assertIn("language", document_intake)
+                    self.assertIn("legal_domain", document_intake)
+                    self.assertIn("readability", document_intake)
+                    self.assertIn("status", document_intake["readability"])
+                    self.assertIn("confidence", document_intake["readability"])
+                    self.assertIn("requires_human_triage", document_intake)
+                    self.assertEqual(
+                        document_intake["readability"]["status"],
+                        "unreadable" if case_type == "unreadable_or_incomplete" else "ok",
+                    )
+                    self.assertIn("coverage", expected)
+                    coverage = expected["coverage"]
+                    self.assertEqual(coverage["documents_seen"], 1)
+                    self.assertEqual(coverage["documents_processed"], 0 if case_type == "unreadable_or_incomplete" else 1)
+                    self.assertEqual(coverage["documents_unreadable"], 1 if case_type == "unreadable_or_incomplete" else 0)
                     self.assertIn("findings", expected)
                     self.assertGreater(len(expected["findings"]), 0)
                     self.assertIn("audit_trail", expected)
